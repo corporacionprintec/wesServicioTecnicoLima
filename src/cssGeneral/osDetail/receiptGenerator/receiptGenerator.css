@@ -1,0 +1,34 @@
+/* Estilos personalizados para ReceiptGenerator (antes Bootstrap) */
+
+.rg-spinner {
+  border: 4px solid #e3e8ee !important;
+  border-top: 4px solid #265d97 !important;
+  border-radius: 50% !important;
+  width: 2.5em !important;
+  height: 2.5em !important;
+  animation: rg-spinner-spin 0.7s linear infinite !important;
+  display: inline-block !important;
+  vertical-align: middle;
+  box-sizing: border-box;
+}
+@keyframes rg-spinner-spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+.rg-alert {
+  background: #eaf3fb;
+  color: #1a4d7c;
+  border-radius: 6px;
+  padding: 0.7em 1em;
+  margin-bottom: 1em;
+  font-size: 1.01em;
+  text-align: center;
+}
+.rg-alert-danger {
+  background: #ffeaea;
+  color: #c0392b;
+}
+.rg-alert-success {
+  background: #eaffea;
+  color: #27ae60;
+} 

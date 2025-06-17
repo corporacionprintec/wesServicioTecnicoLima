@@ -1,0 +1,64 @@
+/* Estilos personalizados para ProblemDescriptionCard (antes Bootstrap) */
+
+.pdc-card {
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(26,77,124,0.07);
+  margin-bottom: 1.2rem;
+  overflow: hidden;
+  border: 1px solid #e3e8ee;
+}
+.pdc-card-header {
+  background: #f5faff;
+  padding: 0.7rem 1.2rem;
+  border-bottom: 1px solid #e3e8ee;
+}
+.pdc-card-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #1a4d7c;
+  margin: 0;
+}
+.pdc-card-body {
+  padding: 1.1rem 1.2rem;
+}
+.pdc-card-body p {
+  margin-bottom: 0.7em;
+  font-size: 1rem;
+  color: #222;
+}
+.pdc-btn {
+  border: none;
+  border-radius: 6px;
+  padding: 0.35em 0.9em;
+  font-size: 0.97rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.18s, box-shadow 0.18s, transform 0.15s;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+  background: linear-gradient(90deg, #36d1c4 0%, #5b86e5 100%);
+  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4em;
+  margin-bottom: 0.5em;
+}
+.pdc-btn:active { transform: scale(0.97); }
+.pdc-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+.pdc-btn-link {
+  background: none;
+  color: #5b86e5;
+  box-shadow: none;
+  padding: 0;
+  font-size: 0.97rem;
+  text-decoration: underline;
+  margin-bottom: 0.2em;
+  cursor: pointer;
+}
+.pdc-btn-link:active { color: #3673a9; }
+.pdc-img-title {
+  font-size: 0.98rem;
+  color: #265d97;
+  font-weight: 500;
+  margin-bottom: 0.3em;
+} 

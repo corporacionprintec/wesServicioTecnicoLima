@@ -1,0 +1,104 @@
+/* Estilos personalizados para LocationModal (antes Bootstrap) */
+
+.lm-modal-bg {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.35);
+  z-index: 3000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.lm-modal {
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.18);
+  padding: 1.5rem 1.2rem 1.2rem 1.2rem;
+  max-width: 400px;
+  width: 100%;
+  position: relative;
+  animation: lm-fadein 0.2s;
+}
+@keyframes lm-fadein {
+  from { opacity: 0; transform: translateY(-30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.lm-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid #e3e8ee;
+  padding-bottom: 0.7rem;
+  margin-bottom: 1.2rem;
+}
+.lm-modal-title {
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: #1a4d7c;
+}
+.lm-modal-close {
+  background: none;
+  border: none;
+  font-size: 1.3rem;
+  color: #888;
+  cursor: pointer;
+  transition: color 0.15s;
+}
+.lm-modal-close:hover {
+  color: #e74c3c;
+}
+.lm-modal-body {
+  font-size: 1rem;
+  color: #222;
+  margin-bottom: 1.2rem;
+}
+.lm-radio-group {
+  display: flex;
+  flex-direction: column;
+  gap: 1.1em;
+}
+.lm-radio-option {
+  display: flex;
+  align-items: center;
+  border: 1.5px solid #e3e8ee;
+  border-radius: 7px;
+  padding: 0.9em 1em;
+  background: #f5faff;
+  box-shadow: 0 1px 4px rgba(26,77,124,0.07);
+  transition: border 0.18s;
+}
+.lm-radio-option input[type="radio"] {
+  width: 1.2em;
+  height: 1.2em;
+  accent-color: #5b86e5;
+  margin-right: 0.7em;
+}
+.lm-radio-label {
+  font-weight: 600;
+  color: #265d97;
+  font-size: 1.01em;
+}
+.lm-modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.7rem;
+  border-top: 1px solid #e3e8ee;
+  padding-top: 0.7rem;
+}
+.lm-btn {
+  border: none;
+  border-radius: 6px;
+  padding: 0.45em 1.1em;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.18s, box-shadow 0.18s, transform 0.15s;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4em;
+}
+.lm-btn-cancel { background: #e3e8ee; color: #1a4d7c; }
+.lm-btn-primary { background: linear-gradient(90deg, #36d1c4 0%, #5b86e5 100%); color: #fff; }
+.lm-btn:active { transform: scale(0.97); }
+.lm-btn:disabled { opacity: 0.6; cursor: not-allowed; } 

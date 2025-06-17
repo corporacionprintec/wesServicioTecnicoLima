@@ -1,0 +1,482 @@
+/* 
+ * Formulario de Solicitud de Reparación - Estilos Profesionales
+ * CSS modernizado con mejor organización, efectos visuales y rendimiento
+ * Incluye variables CSS, transiciones suaves y optimizaciones responsive
+ */
+
+:root {
+  /* Paleta de colores */
+  --primary-color: #073a6d;
+  --primary-dark: #05294d;
+  --primary-light: #b0c4de;
+  --primary-bg: #e6eef7;
+  --secondary-color: #005b7f;
+  --secondary-dark: #003d56;
+  --accent-color: #7fa6c7;
+  --white: #f8f9fa;
+  --gray-100: #e3e6ea;
+  --gray-200: #cfd8dc;
+  --gray-800: #23272b;
+  --dark-text: #0a1a2f;
+  --light-text: #dbe6f1;
+  
+  /* Sombras y efectos */
+  --shadow-sm: 0 2px 6px rgba(0, 0, 0, 0.08);
+  --shadow-md: 0 4px 12px rgba(13, 110, 253, 0.15);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.12);
+  
+  /* Espaciado y bordes */
+  --space-xs: 0.25rem;
+  --space-sm: 0.5rem;
+  --space-md: 1rem;
+  --space-lg: 1.5rem;
+  --space-xl: 2rem;
+  --border-radius-sm: 0.375rem;
+  --border-radius-md: 0.5rem;
+  --border-radius-lg: 0.75rem;
+  
+  /* Transiciones */
+  --transition-fast: 0.15s ease-in-out;
+  --transition-medium: 0.25s ease-in-out;
+}
+
+/* Reset y estilos base */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  font-size: 16px;
+  line-height: 1.5;
+  color: var(--dark-text);
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Contenedor principal */
+.repair-form-bg {
+  min-height: 100vh;
+  width: 100%;
+  background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0;
+  position: relative;
+}
+
+/* Tarjeta del formulario */
+.repair-form-card {
+  background: transparent;
+  width: 100%;
+  max-width: 1400px;
+  overflow: hidden;
+  border: none;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Sección superior/hero */
+.repair-form-card-img-top {
+  width: 100%;
+  height: 400px;
+  overflow: hidden;
+  position: relative;
+}
+
+.repair-form-hero-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 25%;
+  filter: brightness(0.8) contrast(1.1) saturate(1.1);
+  transition: transform var(--transition-medium);
+}
+
+.repair-form-card:hover .repair-form-hero-img {
+  transform: scale(1.02);
+}
+
+.repair-form-hero-overlay {
+  position: relative;
+  width: 100%;
+  background: var(--secondary-color);
+  padding: var(--space-xl) var(--space-lg);
+  text-align: center;
+  border-bottom: 4px solid rgba(255, 255, 255, 0.1);
+  box-shadow: var(--shadow-md);
+}
+
+.repair-form-hero-title h1 {
+  color: var(--white);
+  font-size: clamp(2rem, 4vw, 2.5rem);
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.7rem;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+}
+
+.repair-form-hero-icon {
+  font-size: 1.5em;
+  vertical-align: middle;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1));
+}
+
+.repair-form-hero-desc {
+  color: var(--light-text);
+  font-size: 1.1rem;
+  line-height: 1.6;
+  max-width: 700px;
+  margin: 0 auto;
+  opacity: 0.95;
+}
+
+.repair-form-hero-link {
+  color: var(--white);
+  text-decoration: underline;
+  font-weight: 700;
+  padding: 0 var(--space-xs);
+  transition: all var(--transition-fast);
+  position: relative;
+}
+
+.repair-form-hero-link:hover {
+  color: var(--primary-light);
+  text-decoration-thickness: 2px;
+}
+
+/* Cuerpo del formulario */
+.repair-form-card-body {
+  padding: 0;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.repair-form-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xl);
+  justify-content: center;
+  padding: var(--space-xl);
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.repair-form-col-lg-6 {
+  flex: 1 1 45%;
+  min-width: 320px;
+  max-width: 650px;
+  margin-bottom: var(--space-lg);
+  display: flex;
+  flex-direction: column;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-sm);
+  padding: var(--space-xl);
+  color: var(--white);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  transition: transform var(--transition-medium), box-shadow var(--transition-medium);
+}
+
+.repair-form-col-lg-6:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-lg);
+}
+
+.repair-form-col-12 {
+  flex: 1 1 100%;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: var(--space-lg);
+}
+
+.repair-form-mt-3 {
+  margin-top: var(--space-lg);
+}
+
+/* Títulos de secciones */
+.repair-form-section-title {
+  font-size: 1.3rem;
+  font-weight: 700;
+  margin-bottom: var(--space-lg);
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  background: rgba(13, 110, 253, 0.18);
+  padding: var(--space-sm) var(--space-md);
+  border-radius: var(--border-radius-md);
+  color: var(--white);
+  letter-spacing: 0.01em;
+  position: relative;
+  overflow: hidden;
+}
+
+.repair-form-section-title::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 4px;
+  background: var(--primary-light);
+  border-radius: 0 2px 2px 0;
+}
+
+.repair-form-section-icon {
+  font-size: 1.3em;
+  color: var(--accent-color);
+}
+
+/* Labels más profesionales */
+.repair-form-form-label {
+  font-weight: 700;
+  color: var(--primary-light);
+  margin-bottom: var(--space-xs);
+  display: block;
+  letter-spacing: 0.04em;
+  font-size: 1.05rem;
+  text-transform: uppercase;
+  padding-left: 2px;
+  transition: color 0.2s;
+}
+
+.repair-form-form-label:focus-within,
+.repair-form-form-label:active {
+  color: var(--accent-color);
+}
+
+.repair-form-label-hint {
+  color: var(--accent-color);
+  font-size: 0.9em;
+  margin-left: 0.5em;
+  font-weight: normal;
+  text-transform: none;
+  opacity: 0.9;
+}
+
+/* Inputs más modernos y elegantes */
+.repair-form-input {
+  padding: 0.85rem 1.1rem;
+  border-radius: var(--border-radius-lg);
+  border: 1.5px solid var(--primary-light);
+  font-size: 1.08rem;
+  background: rgba(255, 255, 255, 0.95);
+  transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+  width: 100%;
+  margin-bottom: var(--space-md);
+  color: var(--dark-text);
+  box-shadow: 0 2px 8px rgba(7, 58, 109, 0.06);
+}
+
+.repair-form-input:focus {
+  border-color: var(--primary-color);
+  outline: none;
+  background: #f4f8fc;
+  box-shadow: 0 0 0 3px rgba(7, 58, 109, 0.13);
+}
+
+textarea.repair-form-input {
+  min-height: 130px;
+  resize: vertical;
+}
+
+/* Botones */
+.repair-form-btn {
+  background: linear-gradient(90deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+  color: var(--white);
+  font-weight: 700;
+  border: none;
+  border-radius: var(--border-radius-md);
+  padding: 0.8rem 1.5rem;
+  font-size: 1rem;
+  margin-right: var(--space-sm);
+  margin-bottom: var(--space-sm);
+  box-shadow: var(--shadow-sm);
+  cursor: pointer;
+  transition: all var(--transition-medium);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  letter-spacing: 0.02em;
+  position: relative;
+  overflow: hidden;
+}
+
+.repair-form-btn::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0));
+  opacity: 0;
+  transition: opacity var(--transition-fast);
+}
+
+.repair-form-btn:hover {
+  background: linear-gradient(90deg, var(--primary-dark) 0%, var(--primary-color) 100%);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+}
+
+.repair-form-btn:hover::after {
+  opacity: 1;
+}
+
+.repair-form-btn:active {
+  transform: translateY(0);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Alertas y notificaciones */
+.repair-form-alert {
+  background: rgba(255, 255, 255, 0.12);
+  color: var(--white);
+  border-radius: var(--border-radius-md);
+  padding: var(--space-md) var(--space-lg);
+  margin-bottom: var(--space-lg);
+  text-align: center;
+  font-weight: 500;
+  border: 1px solid rgba(182, 212, 254, 0.3);
+  box-shadow: var(--shadow-sm);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+}
+
+/* Media queries mejorados */
+@media (max-width: 1200px) {
+  .repair-form-row {
+    padding: var(--space-lg);
+    gap: var(--space-lg);
+  }
+  
+  .repair-form-col-lg-6 {
+    padding: var(--space-lg);
+  }
+}
+
+@media (max-width: 900px) {
+  .repair-form-row {
+    flex-direction: column;
+    gap: var(--space-lg);
+    align-items: center;
+    padding: var(--space-md) var(--space-sm);
+  }
+  
+  .repair-form-col-lg-6 {
+    min-width: 90%;
+    max-width: 90%;
+  }
+  
+  .repair-form-card-img-top {
+    height: 300px;
+  }
+  
+  .repair-form-hero-overlay {
+    padding: var(--space-lg) var(--space-md);
+  }
+  
+  .repair-form-hero-title h1 {
+    font-size: 1.8rem;
+  }
+}
+
+@media (max-width: 600px) {
+  .repair-form-card-img-top {
+    height: 200px;
+  }
+  
+  .repair-form-hero-overlay {
+    padding: var(--space-md);
+  }
+  
+  .repair-form-hero-title h1 {
+    font-size: 1.5rem;
+    flex-direction: column;
+    gap: var(--space-xs);
+  }
+  
+  .repair-form-hero-desc {
+    font-size: 0.95rem;
+  }
+  
+  .repair-form-col-lg-6 {
+    min-width: 100%;
+    max-width: 100%;
+    padding: var(--space-md);
+    margin-bottom: var(--space-md);
+  }
+  
+  .repair-form-section-title {
+    font-size: 1.1rem;
+    padding: var(--space-xs) var(--space-sm);
+  }
+  
+  .repair-form-form-label {
+    font-size: 0.98rem;
+    padding-left: 1px;
+  }
+  
+  .repair-form-input {
+    padding: 0.7rem 0.9rem;
+    font-size: 0.98rem;
+  }
+  
+  textarea.repair-form-input {
+    min-height: 90px;
+  }
+  
+  .repair-form-btn {
+    width: 100%;
+    justify-content: center;
+    margin-right: 0;
+  }
+}
+
+/* Mejoras de accesibilidad */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+    animation: none !important;
+  }
+}
+
+/* Mejoras de impresión */
+@media print {
+  .repair-form-bg {
+    background: white !important;
+    color: black !important;
+  }
+  
+  .repair-form-col-lg-6 {
+    background: white !important;
+    color: black !important;
+    box-shadow: none !important;
+    border: 1px solid #ccc !important;
+  }
+  
+  .repair-form-section-title {
+    color: black !important;
+    background: #f0f0f0 !important;
+  }
+  
+  .repair-form-form-label {
+    color: black !important;
+  }
+  
+  .repair-form-btn {
+    display: none !important;
+  }
+}

@@ -1,0 +1,64 @@
+/* Estilos personalizados para ImagePreview, inspirado en Bootstrap */
+
+.image-preview-container {
+  margin-top: 1.5rem;
+  padding: 1.2rem;
+  border-radius: 12px;
+  background-color: rgba(255,255,255,0.2);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.image-preview-title {
+  margin-bottom: 0.7rem;
+  font-weight: 600;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.image-preview-img-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  justify-content: center;
+}
+
+.image-preview-img-wrapper {
+  position: relative;
+}
+
+.image-preview-img {
+  width: 100px;
+  height: 100px;
+  object-fit: cover;
+  border: 3px solid white;
+  border-radius: 12px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  transition: transform 0.2s ease;
+}
+
+.image-preview-btn {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 2px solid white;
+  background-color: #0c71a6;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 4px rgba(12, 113, 166, 0.25);
+  transform: translate(30%, -30%);
+  padding: 0;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background 0.2s;
+}
+
+.image-preview-btn:hover {
+  background-color: #095a85;
+} 

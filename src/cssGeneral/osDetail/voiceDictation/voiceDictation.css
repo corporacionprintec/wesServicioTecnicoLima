@@ -1,0 +1,127 @@
+.voice-dictation-group {
+  margin-bottom: 1.5rem;
+}
+
+.voice-dictation-label {
+  font-weight: 600;
+  color: #2c3e50;
+  margin-bottom: 0.5rem;
+  display: block;
+}
+
+.voice-dictation-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+  gap: 0.5rem;
+}
+
+.voice-dictation-btn {
+  display: flex;
+  align-items: center;
+  background: #f5f6fa;
+  border: 1px solid #d1d8e0;
+  color: #34495e;
+  border-radius: 6px;
+  padding: 0.35rem 0.9rem;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s, border 0.2s;
+  gap: 0.4em;
+}
+.voice-dictation-btn.danger, .voice-dictation-btn.active {
+  background: #dc3545;
+  color: #fff;
+  border-color: #dc3545;
+}
+.voice-dictation-btn:hover {
+  background: #eaf1fb;
+  color: #007bff;
+}
+
+.voice-dictation-feedback {
+  margin-bottom: 0.5rem;
+  padding: 0.5rem 0.8rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border: 1px solid #e1e4ea;
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+  font-size: 0.97em;
+}
+
+.mic-pulse {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #dc3545;
+  animation: pulse 1.5s infinite;
+}
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.7);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(220, 53, 69, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(220, 53, 69, 0);
+  }
+}
+
+.border-pulsating {
+  animation: borderPulse 2s infinite;
+  border: 1px solid #ccc;
+}
+@keyframes borderPulse {
+  0% {
+    border-color: #ccc;
+  }
+  50% {
+    border-color: #dc3545;
+  }
+  100% {
+    border-color: #ccc;
+  }
+}
+
+.voice-dictation-textarea {
+  width: 100%;
+  border-radius: 8px;
+  border: 1px solid #d1d8e0;
+  padding: 0.7rem 1rem;
+  font-size: 1rem;
+  min-height: 90px;
+  resize: vertical;
+  transition: border 0.2s;
+}
+.voice-dictation-textarea:focus {
+  border-color: #007bff;
+  outline: none;
+}
+
+.voice-dictation-remaining {
+  font-size: 0.85rem;
+  margin-top: 0.3rem;
+}
+.voice-dictation-remaining.warning {
+  color: #e67e22;
+}
+.voice-dictation-remaining.danger {
+  color: #c0392b;
+}
+
+@media (max-width: 600px) {
+  .voice-dictation-controls {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.4rem;
+  }
+  .voice-dictation-btn {
+    width: 100%;
+    justify-content: center;
+  }
+} 

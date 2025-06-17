@@ -1,0 +1,81 @@
+/* Diseño moderno para EstadisticasPersonal */
+.estadisticas-personal-container {
+  background: #181a2a;
+  color: #f3f4f6;
+  border-radius: 18px;
+  box-shadow: 0 4px 24px rgba(37,99,235,0.08);
+  padding: 2.5rem 1.5rem;
+  margin: 2rem auto;
+  max-width: 1100px;
+}
+.estadisticas-header {
+  color: #a5b4fc;
+  font-size: 2.2rem;
+  font-weight: 800;
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+.estadisticas-cards {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  justify-content: center;
+  margin-bottom: 2rem;
+}
+.estadisticas-card {
+  background: #23263a;
+  border-radius: 14px;
+  box-shadow: 0 2px 8px rgba(91,134,229,0.09);
+  padding: 1.5rem 2rem;
+  min-width: 180px;
+  text-align: center;
+  color: #f3f4f6;
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+.estadisticas-card .valor {
+  color: #6366f1;
+  font-size: 2.1rem;
+  font-weight: 900;
+  margin-top: 0.5rem;
+}
+.estadisticas-table {
+  background: #23263a;
+  border-radius: 12px;
+  margin-top: 2rem;
+  color: #f3f4f6;
+  width: 100%;
+  box-shadow: 0 2px 8px rgba(91,134,229,0.09);
+}
+.estadisticas-table th {
+  background: #6366f1;
+  color: #fff;
+  font-weight: 800;
+  font-size: 1.1rem;
+  border-radius: 12px 12px 0 0;
+}
+.estadisticas-table td {
+  color: #f3f4f6;
+  font-size: 1rem;
+  border-bottom: 1px solid #374151;
+}
+.estadisticas-table tr:last-child td {
+  border-bottom: none;
+}
+.pagination-link.is-current {
+  background: #6366f1 !important;
+  color: #fff !important;
+}
+@media (max-width: 768px) {
+  .estadisticas-cards {
+    flex-direction: column;
+    align-items: center;
+  }
+  .estadisticas-card {
+    min-width: 90vw;
+    padding: 1rem;
+  }
+  .estadisticas-personal-container {
+    padding: 1rem 0.5rem;
+  }
+}

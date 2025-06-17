@@ -1,0 +1,45 @@
+/* Estilos personalizados para CameraCapture, inspirado en Bootstrap */
+
+.camera-capture-container {
+  position: relative;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.camera-capture-video {
+  width: 100%;
+  border-radius: 16px;
+}
+
+/* Centrando los botones de Capturar y Cancelar */
+.camera-capture-btn-row {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem; /* Espaciado entre los botones */
+  margin-top: 1rem;
+}
+
+/* Ajuste de estilos para que coincidan con AudioRecorder */
+.camera-capture-btn {
+  background-color: #4CAF50; /* Verde similar a AudioRecorder */
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  padding: 10px 20px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.camera-capture-btn.cancel {
+  background-color: #ff4444; /* Rojo para el botón de cancelar */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.camera-capture-btn:hover {
+  filter: brightness(0.9);
+}

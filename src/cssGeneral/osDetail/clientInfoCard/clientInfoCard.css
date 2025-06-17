@@ -1,0 +1,32 @@
+/* Estilos personalizados para ClientInfoCard (antes Bootstrap) */
+
+.cic-card {
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(26,77,124,0.07);
+  margin-bottom: 1rem;
+  overflow: hidden;
+  border: 1px solid #e3e8ee;
+}
+.cic-card-header {
+  background: #f5faff;
+  padding: 0.7rem 1.2rem;
+  border-bottom: 1px solid #e3e8ee;
+}
+.cic-card-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #1a4d7c;
+  margin: 0;
+}
+.cic-card-body {
+  padding: 1.1rem 1.2rem;
+}
+.cic-card-body p {
+  margin-bottom: 0.7em;
+  font-size: 1rem;
+  color: #222;
+}
+.cic-card-body strong {
+  color: #265d97;
+} 

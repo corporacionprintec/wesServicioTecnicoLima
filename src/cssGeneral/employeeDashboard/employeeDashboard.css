@@ -1,0 +1,398 @@
+/* Estilos para EmployeeDashboard extraídos del componente - Versión compacta con mejor legibilidad */
+
+.order-row:hover {
+    background-color: #4188c4 !important;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  }
+  
+  .badge {
+    font-weight: 500;
+    padding: 0.25em 0.4em;
+    border-radius: 4px;
+    font-size: 0.8em;
+  }
+  
+  .dropdown-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .nav-link {
+    transition: all 0.2s;
+  }
+  
+  .btn {
+    padding: 0.2rem 0.4rem;
+    font-size: 0.85rem;
+  }
+  
+  /* --- NAVBAR --- */
+  .ed-navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: linear-gradient(90deg, #1a4d7c 60%, #265d97 100%);
+    color: #fff;
+    padding: 0.4rem 0.8rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .ed-navbar-logo {
+    font-size: 1.1rem;
+    font-weight: bold;
+    letter-spacing: 0;
+  }
+  .ed-navbar-user {
+    font-size: 0.95rem;
+    font-weight: 500;
+  }
+  .ed-navbar-right {
+    display: flex;
+    gap: 0.4rem;
+  }
+  
+  /* --- BOTONES --- */
+  .ed-btn {
+    border: none;
+    border-radius: 4px;
+    padding: 0.25em 0.5em;
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.07);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25em;
+    height: 1.9rem;
+    justify-content: center;
+  }
+  .ed-btn:active {
+    transform: scale(0.97);
+  }
+  .ed-btn-green { background: linear-gradient(90deg, #43e97b 0%, #38f9d7 100%); color: #1a4d7c; }
+  .ed-btn-red { background: linear-gradient(90deg, #ff5858 0%, #f09819 100%); color: #fff; }
+  .ed-btn-blue { background: linear-gradient(90deg, #36d1c4 0%, #5b86e5 100%); color: #fff; }
+  .ed-btn-purple { background: linear-gradient(90deg, #a770ef 0%, #f6d365 100%); color: #fff; }
+  .ed-btn-pink { background: linear-gradient(90deg, #ff6a88 0%, #ff99ac 100%); color: #fff; }
+  .ed-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+  /* Cambiar el color del botón de filtrar por fecha a un color más vivo */
+  .ed-btn-orange {
+    background: linear-gradient(90deg, #ff9a3c 0%, #ff6f00 100%); /* Naranja más vivo */
+    color: #fff;
+    border: none;
+    transition: background 0.3s ease;
+  }
+
+  .ed-btn-orange:hover {
+    background: linear-gradient(90deg, #ff7f00 0%, #e65c00 100%); /* Efecto hover */
+  }
+  
+  /* --- MAIN CONTENT --- */
+  .ed-main-content {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0;
+  }
+  
+  /* --- TABLE CARD --- */
+  .ed-table-card {
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(26,77,124,0.07);
+    padding: 0.8rem 1rem 0.8rem 1rem;
+  }
+  
+  /* NUEVO: Fondo azul claro y sin espacios para controles */
+  .ed-table-header {
+    background: #eaf3fb;
+    margin: 0;
+    padding: 0.4rem 0;
+    border-radius: 0;
+    box-shadow: none;
+  }
+  .ed-table-search {
+    background: #eaf3fb;
+    width: 100%;
+    margin: 0;
+    border-radius: 0;
+    box-shadow: none;
+    padding: 0.3rem 0;
+  }
+  
+  .ed-table-title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #1a4d7c;
+    margin-bottom: 0.4rem;
+  }
+  
+  /* Disposición de controles - Más compacto */
+  .ed-table-controls {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr 1fr !important; /* Tres botones por fila */
+    gap: 0.35rem !important;
+    width: 100% !important;
+  }
+  
+  /* El input de búsqueda ocupa todo el ancho */
+  .ed-table-controls input.ed-input {
+    grid-column: 1 / -1;
+    width: 100% !important;
+    height: 2rem;
+  }
+  
+  .ed-table-controls > *:not(input.ed-input) {
+    width: 100% !important;
+    height: 2rem !important;
+    min-width: 0 !important;
+    margin: 0 !important;
+    box-sizing: border-box !important;
+    font-size: 0.82rem !important;
+    padding: 0.25em 0.35em !important;
+  }
+  
+  .ed-input, .ed-select {
+    border: 1px solid #dbeafe;
+    border-radius: 4px;
+    padding: 0.3em 0.5em;
+    font-size: 0.85rem;
+    background: #f5faff;
+    color: #1a4d7c;
+    outline: none;
+    transition: border 0.18s, box-shadow 0.18s;
+  }
+  .ed-input:focus, .ed-select:focus {
+    border-color: #5b86e5;
+    box-shadow: 0 0 0 1px #dbeafe;
+  }
+  
+  /* --- TABLE --- */
+  .ed-table-responsive {
+    width: 100%;
+    overflow-x: visible;
+    margin-bottom: 0.6rem;
+  }
+  .ed-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #fff;
+    color: #1a4d7c;
+    font-size: 0.9rem; /* Aumentado desde 0.8rem */
+    table-layout: fixed;
+  }
+  .ed-table th, .ed-table td {
+    padding: 0.4em 0.45em; /* Ligeramente aumentado */
+    border-bottom: 1px solid #e3e8ee;
+    text-align: left;
+  }
+  .ed-table th {
+    background: #f5faff;
+    font-weight: 600;
+    color: #265d97;
+    font-size: 0.85rem; /* Aumentado desde 0.75rem */
+  }
+  .order-row {
+    cursor: pointer;
+    transition: background 0.15s, box-shadow 0.15s;
+    height: 2.5rem; /* Aumentado desde 2.2rem */
+  }
+  .order-row:hover {
+    background: #e3f0ff;
+    box-shadow: 0 2px 8px rgba(26,77,124,0.08);
+  }
+  
+  /* Ajustes para el teléfono */
+  .ed-table-phone {
+    display: flex;
+    align-items: center;
+    gap: 0.3em;
+    white-space: nowrap;
+    width: 100%;
+  }
+   /* Reducir el espacio entre las filas de la tabla para optimizar el uso del espacio */
+   .ed-table tbody tr {
+    margin-bottom: 0; /* Eliminar márgenes innecesarios */
+    padding: 8px 10px; /* Ajustar el relleno para un diseño más compacto */
+  }
+
+  /* Ajustar el diseño de las celdas para un mejor uso del espacio */
+  .ed-table tbody td {
+    vertical-align: middle; /* Alinear el contenido al centro verticalmente */
+    padding: 6px 8px; /* Reducir el relleno interno */
+  }
+
+  /* Centrar el contenido de la columna de nombre */
+  .ed-table tbody td:nth-child(2) {
+    text-align: left; /* Alinear el texto a la izquierda */
+    padding-left: 5px; /* Reducir el margen izquierdo para acercarlo más al borde */
+  }
+
+  .ed-table-phone .ed-btn {
+    padding: 0.18em 0.35em;
+    height: 1.6rem; /* Ligeramente más grande */
+    min-width: 1.6rem;
+    font-size: 0.78rem;
+  }
+  .ed-table-phone-number {
+    margin-left: 0.25em;
+    font-weight: 500;
+    color: #1a4d7c;
+    font-size: 0.92rem; /* Aumentado desde 0.85rem */
+    display: inline-block;
+    text-overflow: ellipsis;
+    overflow: visible;
+    white-space: nowrap;
+  }
+  
+  /* Ajustamos los anchos de columna para asegurar que el teléfono se vea completo */
+  .ed-table th:first-child, .ed-table td:first-child {
+    width: 40%; /* Reducir el ancho de la columna de Teléfono */
+  }
+  .ed-table th:nth-child(2), .ed-table td:nth-child(2) {
+    width: 30%; /* Ajustar el ancho de la columna de Nombre */
+  }
+  .ed-table th:nth-child(3), .ed-table td:nth-child(3) {
+    width: 30%; /* Mantener el ancho de la columna de Estado */
+  }
+  
+  /* --- BADGES Y ESTADOS --- */
+  .badge {
+    display: inline-block;
+    padding: 0.2em 0.4em;
+    border-radius: 3px;
+    font-size: 0.82em; /* Aumentado desde 0.75em */
+    font-weight: 500;
+    margin-right: 0.15em;
+  }
+  .badge-warning { background: #fff3cd; color: #856404; }
+  .badge-info { background: #d1ecf1; color: #0c5460; }
+  .badge-dark { background: #d6d8d9; color: #343a40; }
+  .badge-danger { background: #f8d7da; color: #721c24; }
+  .badge-secondary { background: #e2e3e5; color: #383d41; }
+  .ed-tipo-servicio {
+    font-size: 0.78em; /* Aumentado desde 0.7em */
+    color: #5b86e5;
+    margin-top: 2px;
+    font-weight: 500;
+    opacity: 0.85;
+  }
+  
+  /* --- PAGINACIÓN --- */
+  .ed-pagination {
+    display: flex;
+    align-items: center;
+    gap: 0.6em;
+    justify-content: flex-end;
+    margin-top: 0.6em;
+  }
+  .ed-pagination-info {
+    font-size: 0.85em; /* Aumentado desde 0.8em */
+    color: #1a4d7c;
+    font-weight: 500;
+  }
+  
+  /* --- RESPONSIVE --- */
+  @media (max-width: 900px) {
+    .ed-main-content, .ed-table-card {
+      padding-left: 0;
+      padding-right: 0;
+    }
+  }
+  @media (max-width: 600px) {
+    .ed-navbar {
+      flex-direction: column;
+      gap: 0.3em;
+      padding: 0.4em;
+      text-align: center;
+    }
+    .ed-table-header, .ed-table-search {
+      padding-left: 0;
+      padding-right: 0;
+    }
+    .ed-table th, .ed-table td {
+      padding: 0.35em 0.25em;
+      font-size: 0.85em; /* Aumentado desde 0.75em */
+    }
+    .ed-pagination {
+      justify-content: center;
+      gap: 0.4em;
+    }
+    
+    /* Ajuste a 2 columnas en móviles */
+    .ed-table-controls {
+      grid-template-columns: 1fr 1fr !important;
+      gap: 0.3rem !important;
+    }
+    
+    /* Asegura que el teléfono siga visible */
+    .ed-table th:first-child, .ed-table td:first-child {
+      width: 55%; /* Aún más ancho en móvil */
+    }
+
+    /* Ajustar el diseño de los botones de filtro por fecha en modo móvil para que estén en línea */
+    .ed-date-filter {
+      display: flex;
+      flex-direction: row;
+      gap: 0.5rem;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .ed-date-filter button {
+      flex: 1;
+      font-size: 0.9rem;
+      padding: 0.5rem;
+    }
+
+    .ed-date-filter input {
+      flex: 1;
+      font-size: 0.9rem;
+      padding: 0.5rem;
+    }
+
+    .ed-date-filter .calendar-icon {
+      flex: 0;
+      font-size: 1.2rem;
+      cursor: pointer;
+    }
+
+    /* Mejorar el diseño de los botones de filtro por fecha para que ocupen menos espacio */
+    .ed-date-filter {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.3rem;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .ed-date-filter button {
+      flex: 1 1 30%; /* Ajustar el tamaño para que ocupen menos espacio */
+      font-size: 0.85rem;
+      padding: 0.4rem;
+      text-align: center;
+    }
+
+    .ed-date-filter input {
+      flex: 1 1 65%; /* Reducir el tamaño del input */
+      font-size: 0.85rem;
+      padding: 0.4rem;
+    }
+
+    .ed-date-filter .calendar-icon {
+      flex: 0 0 auto;
+      font-size: 1.1rem;
+      cursor: pointer;
+      margin-left: auto;
+    }
+  }
+
+.ed-row-eliminado {
+  text-decoration: line-through;
+  color: #b0b0b0 !important;
+}

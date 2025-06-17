@@ -1,0 +1,54 @@
+/* Estilos personalizados para NotificationBanner, inspirado en Bootstrap */
+
+.notification-banner {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1050;
+  width: 90%;
+  max-width: 600px;
+  border-radius: 12px;
+  border: none;
+  text-align: center;
+  font-weight: 500;
+  font-size: 1.1rem;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+  padding: 1rem 1.5rem;
+  animation: fadeInDown 0.5s;
+}
+
+.notification-banner.success {
+  background: #d1e7dd;
+  color: #0f5132;
+  border-left: 6px solid #198754;
+}
+
+.notification-banner.warning {
+  background: #fff3cd;
+  color: #664d03;
+  border-left: 6px solid #ffc107;
+}
+
+.notification-banner.danger {
+  background: #f8d7da;
+  color: #842029;
+  border-left: 6px solid #dc3545;
+}
+
+.notification-banner.info {
+  background: #cff4fc;
+  color: #055160;
+  border-left: 6px solid #0dcaf0;
+}
+
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-30px) translateX(-50%);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) translateX(-50%);
+  }
+} 

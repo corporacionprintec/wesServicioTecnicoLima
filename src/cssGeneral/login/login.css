@@ -1,0 +1,126 @@
+/* Estilos personalizados para el login, inspirados en Bootstrap */
+
+.login-bg {
+  min-height: 100vh;
+  width: 100vw;
+  background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.login-card {
+  background: #fff;
+  border-radius: 18px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+  padding: 2.5rem 2rem;
+  width: 100%;
+  max-width: 400px;
+  margin: 2rem 0;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.login-title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #007bff;
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.login-alert {
+  background: #f8d7da;
+  color: #721c24;
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1rem;
+  text-align: center;
+  font-weight: 500;
+  border: 1px solid #f5c6cb;
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+}
+
+.login-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.login-label {
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 0.2rem;
+}
+
+.login-input, .login-select {
+  padding: 0.7rem 1rem;
+  border-radius: 8px;
+  border: 1px solid #ced4da;
+  font-size: 1rem;
+  background: #f8f9fa;
+  transition: border-color 0.2s;
+}
+
+.login-input:focus, .login-select:focus {
+  border-color: #007bff;
+  outline: none;
+  background: #fff;
+}
+
+.login-btn {
+  background: linear-gradient(90deg, #007bff 60%, #0056b3 100%);
+  color: #fff;
+  font-weight: 700;
+  border: none;
+  border-radius: 8px;
+  padding: 0.8rem 0;
+  font-size: 1.1rem;
+  margin-top: 0.5rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  cursor: pointer;
+  transition: background 0.2s, box-shadow 0.2s;
+}
+
+.login-btn:hover {
+  background: linear-gradient(90deg, #0056b3 60%, #007bff 100%);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+}
+
+.login-logout-container {
+  margin-top: 1.5rem;
+  text-align: center;
+}
+
+.login-logout-btn {
+  background: #dc3545;
+  color: #fff;
+  font-weight: 600;
+  border: none;
+  border-radius: 8px;
+  padding: 0.7rem 0;
+  width: 100%;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.login-logout-btn:hover {
+  background: #b52a37;
+}
+
+.d-flex {
+  display: flex;
+}
+.justify-center {
+  justify-content: center;
+}
+.align-center {
+  align-items: center;
+} 

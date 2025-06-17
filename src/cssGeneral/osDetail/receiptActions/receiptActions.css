@@ -1,0 +1,43 @@
+/* Estilos personalizados para ReceiptActions (antes Bootstrap) */
+
+.ra-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.7em;
+  margin-top: 0.5em;
+}
+.ra-btn {
+  border: none;
+  border-radius: 6px;
+  padding: 0.45em 1.1em;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.18s, box-shadow 0.18s, transform 0.15s;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4em;
+}
+.ra-btn-success { background: linear-gradient(90deg, #43e97b 0%, #38f9d7 100%); color: #1a4d7c; }
+.ra-btn-secondary { background: #e3e8ee; color: #1a4d7c; }
+.ra-btn-danger { background: linear-gradient(90deg, #ff5858 0%, #f09819 100%); color: #fff; }
+.ra-btn:active { transform: scale(0.97); }
+.ra-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+.ra-spinner {
+  border: 3px solid #e3e8ee !important;
+  border-top: 3px solid #5b86e5 !important;
+  border-radius: 50% !important;
+  width: 1.5em !important;
+  height: 1.5em !important;
+  animation: ra-spinner-spin 0.7s linear infinite !important;
+  display: inline-block !important;
+  vertical-align: middle;
+  margin-right: 0.7em;
+  box-sizing: border-box;
+}
+@keyframes ra-spinner-spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+} 

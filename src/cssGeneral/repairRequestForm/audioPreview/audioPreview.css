@@ -1,0 +1,47 @@
+/* Estilos personalizados para AudioPreview, inspirado en Bootstrap */
+
+.audio-preview-container {
+  margin-top: 1.5rem;
+  padding: 1.2rem;
+  border-radius: 12px;
+  background-color: rgba(255,255,255,0.2);
+  box-shadow: 0 2px 8px rgba(12, 113, 166, 0.08);
+}
+
+.audio-preview-title {
+  margin-bottom: 0.7rem;
+  font-weight: 600;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.audio-preview-audio {
+  width: 100%;
+  border-radius: 12px;
+  height: 40px;
+  margin-bottom: 0.7rem;
+}
+
+.audio-preview-btn {
+  width: 100%;
+  margin-top: 0.5rem;
+  border-radius: 8px;
+  border: none;
+  background-color: #0c71a6;
+  color: #fff;
+  font-weight: 600;
+  box-shadow: 0 2px 4px rgba(12, 113, 166, 0.25);
+  padding: 0.6rem 0;
+  cursor: pointer;
+  transition: background 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.audio-preview-btn:hover {
+  background-color: #095a85;
+} 
