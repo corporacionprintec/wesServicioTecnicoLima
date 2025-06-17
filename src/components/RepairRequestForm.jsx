@@ -742,7 +742,7 @@ const RepairRequestForm = ({ prefillData = {} }) => {
       if (formData.audioFile) mainFormData.append('audio', formData.audioFile);
       if (imagenesLinks) mainFormData.append('imagenes', imagenesLinks);
       mainFormData.append('tipoServicio', formData.tipoServicio);
-      const response = await fetch('https://servidorserviciotecnico-production.up.railway.app/ordenes', {
+      const response = await fetch('https://servidorserviciotecnicolima-production.up.railway.app/ordenes', {
         method: 'POST',
         body: mainFormData
       });
@@ -779,7 +779,7 @@ const RepairRequestForm = ({ prefillData = {} }) => {
           try {
             const ordenId = responseData.data.orden.id;
             console.log('[DEBUG] Haciendo fetch adicional para obtener el dispositivo de la orden:', ordenId);
-            const ordenResp = await fetch(`https://servidorserviciotecnico-production.up.railway.app/ordenes/${ordenId}`);
+            const ordenResp = await fetch(`https://servidorserviciotecnicolima-production.up.railway.app/ordenes/${ordenId}`);
             const ordenData = await ordenResp.json();
             console.log('[DEBUG] Respuesta de la orden:', ordenData);
             dispositivoIdCreado = ordenData?.data?.dispositivo?.id || null;
@@ -805,7 +805,7 @@ const RepairRequestForm = ({ prefillData = {} }) => {
               tipo_servicio: formData.tipoServicio
             };
             console.log('[VINCULACIÓN QR FINAL] Enviando payload:', payload);
-            const vincularResponse = await fetch(`https://servidorserviciotecnico-production.up.railway.app/dispositivoscanup/${dispositivoIdCreado}`, {
+            const vincularResponse = await fetch(`https://servidorserviciotecnicolima-production.up.railway.app/dispositivoscanup/${dispositivoIdCreado}`, {
               method: 'PUT',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify(payload)
@@ -830,7 +830,7 @@ const RepairRequestForm = ({ prefillData = {} }) => {
                 tipo_servicio: formData.tipoServicio
               };
               console.log('[VINCULACIÓN QR SOLO QR] Enviando payload:', payload);
-              const vincularResponse = await fetch(`https://servidorserviciotecnico-production.up.railway.app/dispositivoscanup/${dispositivoIdCreado}`, {
+              const vincularResponse = await fetch(`https://servidorserviciotecnicolima-production.up.railway.app/dispositivoscanup/${dispositivoIdCreado}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)

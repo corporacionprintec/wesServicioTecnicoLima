@@ -23,7 +23,7 @@ const CierreCajaSection = () => {
   // Cargar cierres y pagos no cuadrados
   const cargarDatos = () => {
     // Cargar cierres de caja
-    fetch('https://servidorserviciotecnico-production.up.railway.app/api/cierres-caja')
+    fetch('https://servidorserviciotecnicolima-production.up.railway.app/api/cierres-caja')
       .then(res => res.json())
       .then(data => {
         if (data.status === 'success') {
@@ -36,7 +36,7 @@ const CierreCajaSection = () => {
       .catch(err => console.error('Error fetching cierres:', err));
 
     // Cargar pagos no cuadrados
-    fetch('https://servidorserviciotecnico-production.up.railway.app/api/pagos/no-cuadrados')
+    fetch('https://servidorserviciotecnicolima-production.up.railway.app/api/pagos/no-cuadrados')
       .then(res => res.json())
       .then(data => setPagosNoCuadrados(data.pagos || []))
       .catch(err => console.error('Error fetching pagos:', err));
@@ -94,7 +94,7 @@ const CierreCajaSection = () => {
       const montoCierreNumber = Number(montoCierre);
       const bodyToSend = { monto_cierre: montoCierreNumber, tecnico_id };
       console.log('Body enviado al backend:', bodyToSend);
-      const response = await fetch('https://servidorserviciotecnico-production.up.railway.app/api/cierres-caja', {
+      const response = await fetch('https://servidorserviciotecnicolima-production.up.railway.app/api/cierres-caja', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(bodyToSend)

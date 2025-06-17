@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import '../cssGeneral/login/login.css';
 
-const BASE_URL = 'https://servidorserviciotecnico-production.up.railway.app/tecnicosAdmin';
+const BASE_URL = 'https://servidorserviciotecnicolima-production.up.railway.app/tecnicosAdmin';
 
 function LoginPage() {
   const [dni, setDni] = useState('');

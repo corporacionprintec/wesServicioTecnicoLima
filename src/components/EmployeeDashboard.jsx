@@ -8,7 +8,7 @@ import QrScannerComponent from './EmployeeDashboard/QrScannerComponent';
 import NovedadesToast from './common/NovedadesToast';
 import PrintecGPTChat from './PrintecGPTChat';
 
-const API_URL = "https://servidorserviciotecnico-production.up.railway.app/ordenes";
+const API_URL = "https://servidorserviciotecnicolima-production.up.railway.app/ordenes";
 const NOVEDADES_VERSION = "2.0.0"; // Cambia esto cuando haya nuevas novedades
 
 const useOrdenes = (refreshTrigger) => {

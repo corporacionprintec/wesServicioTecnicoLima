@@ -13,8 +13,8 @@ import CierreCajaSection from './AdminDashboard/CierreCajaSection';
 
 registerLocale('es', es);
 
-const BASE_URL = 'https://servidorserviciotecnico-production.up.railway.app/tecnicosAdmin';
-const API_URL = "https://servidorserviciotecnico-production.up.railway.app/ordenes";
+const BASE_URL = 'https://servidorserviciotecnicolima-production.up.railway.app/tecnicosAdmin';
+const API_URL = "https://servidorserviciotecnicolima-production.up.railway.app/ordenes";
 
 // Utilidad robusta para parsear costo_total
 function parseCostoTotal(valor) {
@@ -369,7 +369,7 @@ const AdminDashboardContent = () => {
   // Obtener pagos desde el backend
   const fetchPagos = async () => {
     try {
-      const response = await fetch('https://servidorserviciotecnico-production.up.railway.app/api/pagos?page=1&limit=10000');
+      const response = await fetch('https://servidorserviciotecnicolima-production.up.railway.app/api/pagos?page=1&limit=10000');
       if (response.ok) {
         const data = await response.json();
         if (data && data.pagos) {

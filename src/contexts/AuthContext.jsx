@@ -20,7 +20,7 @@ export function AuthProvider({ children }) {
   // Nuevo login centralizado: acepta dni, role y password
   const login = async (dni, role, password) => {
     try {
-      const response = await fetch('https://servidorserviciotecnico-production.up.railway.app/api/tecnicos/login', {
+      const response = await fetch('https://servidorserviciotecnicolima-production.up.railway.app/api/tecnicos/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ login: dni, contrasena: password, role })

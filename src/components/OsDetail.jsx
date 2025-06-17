@@ -16,7 +16,7 @@ import LocationModal from "./OsDetailComponents/LocationModal";
 import ReceiptActions from "./OsDetailComponents/ReceiptActions";
 
 // URL base para el servidor local
-const BASE_URL = 'https://servidorserviciotecnico-production.up.railway.app';
+const BASE_URL = 'https://servidorserviciotecnicolima-production.up.railway.app';
 
 // Función auxiliar para extraer el ID de un enlace de Google Drive
 const extractFileIdFromUrl = (url) => {
@@ -578,7 +578,7 @@ const OsDetail = ({ showDetailsModal, setShowDetailsModal, currentRequest, onDel
   useEffect(() => {
     if (allDataOfCurrentRequest?.data?.dispositivo?.qr_scan) {
       fetch(
-        `https://servidorserviciotecnico-production.up.railway.app/dispositivos/validar-qr?qr=${encodeURIComponent(
+        `https://servidorserviciotecnicolima-production.up.railway.app/dispositivos/validar-qr?qr=${encodeURIComponent(
           allDataOfCurrentRequest.data.dispositivo.qr_scan
         )}`
       )
