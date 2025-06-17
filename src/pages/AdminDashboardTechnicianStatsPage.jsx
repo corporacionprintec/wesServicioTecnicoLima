@@ -10,10 +10,10 @@ function AdminDashboardTechnicianStatsPage() {
     async function fetchData() {
       setLoading(true);
       try {
-        const tecnicosRes = await fetch('https://servidorserviciotecnico-production.up.railway.app/tecnicosAdmin');
+        const tecnicosRes = await fetch('https://servidorserviciotecnicolima-production.up.railway.app/tecnicosAdmin');
         const tecnicosData = await tecnicosRes.json();
         setTecnicos(Array.isArray(tecnicosData) ? tecnicosData : []);
-        const ordenesRes = await fetch('https://servidorserviciotecnico-production.up.railway.app/ordenes?page=1&limit=10000');
+        const ordenesRes = await fetch('https://servidorserviciotecnicolima-production.up.railway.app/ordenes?page=1&limit=10000');
         const ordenesData = await ordenesRes.json();
         setOrdenes(ordenesData?.data?.ordenes || []);
       } catch (e) {

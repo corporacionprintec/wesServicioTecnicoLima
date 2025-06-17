@@ -39,7 +39,7 @@ function EstadisticasPersonal() {
         let apellido = sessionStorage.getItem('selectedTechnicianLastname') || currentUser?.lastname || '';
 
         // Obtener pagos realizados (por fecha_pago) para este técnico
-        const pagosResponse = await fetch('https://servidorserviciotecnico-production.up.railway.app/api/pagos?page=1&limit=10000');
+        const pagosResponse = await fetch('https://servidorserviciotecnicolima-production.up.railway.app/api/pagos?page=1&limit=10000');
         const pagosData = await pagosResponse.json();
         let pagosFiltrados = [];
         if (pagosData && pagosData.pagos) {
