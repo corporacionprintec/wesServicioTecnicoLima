@@ -511,42 +511,49 @@ const AdminDashboardContent = () => {
             onClick={() => setActiveModule('tecnicos')}
             aria-label="Gestionar Técnicos"
           >
-            <i className="fas fa-users-cog"></i> Gestionar Técnicos
+            Gestionar Técnicos
           </button>
           <button
             className={activeModule === 'caja' ? 'active' : ''}
             onClick={() => setActiveModule('caja')}
             aria-label="Caja"
           >
-            <i className="fas fa-cash-register"></i> Caja
+            Caja
           </button>
           <button
             className={activeModule === 'exportar' ? 'active' : ''}
             onClick={() => setActiveModule('exportar')}
             aria-label="Exportar Contactos"
           >
-            <i className="fas fa-file-export"></i> Exportar Contactos
+            Exportar Contactos
           </button>
           <button
             className={activeModule === 'estadisticas' ? 'active' : ''}
             onClick={() => setActiveModule('estadisticas')}
             aria-label="Estadísticas"
           >
-            <i className="fas fa-chart-bar"></i> Estadísticas
+            Estadísticas
           </button>
           <button
             className={activeModule === 'panel' ? 'active' : ''}
             onClick={() => navigate('/employee-dashboard')}
             aria-label="Panel de Técnicos"
           >
-            <i className="fas fa-user-shield"></i> Panel de Técnicos
+            Panel de Técnicos
           </button>
           <button
             className={activeModule === 'listar' ? 'active' : ''}
             onClick={() => setActiveModule('listar')}
             aria-label="Listar Técnicos"
           >
-            <i className="fas fa-list"></i> Listar Técnicos
+            Listar Técnicos
+          </button>
+          <button
+            onClick={() => window.open('https://webserviciotecnico-production.up.railway.app/employee-dashboard', '_blank')}
+            aria-label="Sucursal Ica"
+            style={{ background: '#f59e42', color: '#fff', border: '2px solid #f59e42', borderRadius: 12, fontWeight: 700, marginTop: 8, marginBottom: 8 }}
+          >
+            Sucursal Ica
           </button>
         </aside>
     <main className="main">
