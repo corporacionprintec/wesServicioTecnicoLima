@@ -157,6 +157,26 @@ const TechnicianStats = ({ ordenes, tecnicos = [], filterLabel = '' }) => {
   return (
     <div className="container" style={{ minHeight: '100vh', background: '#f5f6fa' }}>
       <div className="box mt-4 px-2 py-4 mx-2 mx-md-0" style={{ background: '#fff', minHeight: '80vh', boxShadow: '0 2px 12px #b5d0ee33', color: '#1a202c' }}>
+      <div style={{padding: 24}}>
+      <button
+        onClick={() => navigate('/admin-dashboard')}
+        style={{
+          background: 'linear-gradient(90deg, #23263a 0%, #6366f1 100%)',
+          color: '#fff',
+          border: 'none',
+          borderRadius: 16,
+          fontWeight: 700,
+          fontSize: '1.1rem',
+          padding: '0.7em 1.5em',
+          marginBottom: 24,
+          cursor: 'pointer',
+          boxShadow: '0 2px 12px #23263a55',
+          transition: 'background 0.2s',
+        }}
+      >
+        ⬅️ Volver al Panel de Administrador
+      </button>
+      </div>
         <div className="field has-addons is-justify-content-center" style={{ color: '#1a202c' }}>
           <div className="control has-icons-left is-expanded">
             <input

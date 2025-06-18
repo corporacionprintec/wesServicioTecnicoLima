@@ -58,16 +58,14 @@ const AdminDashboardContent = () => {
   const [formData, setFormData] = useState({ nombre: '', apellido: '', telefono: '', rol: '', contrasena: '' });
   const [editingId, setEditingId] = useState(null);
   const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');  const [showCRUD, setShowCRUD] = useState(false);
+  const [success, setSuccess] = useState('');  
   const [loading, setLoading] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const [isLoadingAuth, setIsLoadingAuth] = useState(true);
-  const [showCards, setShowCards] = useState(true);
-  const [showCaja, setShowCaja] = useState(false);
-
   const { currentUser, login } = useAuth();
   const navigate = useNavigate();
   const [exporting, setExporting] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   // Filtros de ingresos
   const [filtroIngresos, setFiltroIngresos] = useState('hoy');
@@ -290,6 +288,90 @@ const AdminDashboardContent = () => {
     }
   };
 
+  const handleCreateTecnico = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await fetch(BASE_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData)
+      });
+      const data = await response.json();
+      if (response.ok) {
+        setSuccess('Técnico creado exitosamente');
+        setFormData({ nombre: '', apellido: '', telefono: '', rol: '', contrasena: '' });
+        fetchTecnicos();
+      } else {
+        setError(data.message || 'Error al crear técnico');
+      }
+    } catch (err) {
+      setError('Error al crear técnico');
+    }
+  };
+
+  const handleUpdateTecnico = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await fetch(`${BASE_URL}/${editingId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData)
+      });
+      const data = await response.json();
+      if (response.ok) {
+        setSuccess('Técnico actualizado exitosamente');
+        setFormData({ nombre: '', apellido: '', telefono: '', rol: '', contrasena: '' });
+        setEditingId(null);
+        fetchTecnicos();
+      } else {
+        setError(data.message || 'Error al actualizar técnico');
+      }
+    } catch (err) {
+      setError('Error al actualizar técnico');
+    }
+  };
+
+  const handleDeleteTecnico = async (id) => {
+    if (!window.confirm('¿Estás seguro de que deseas eliminar este técnico?')) return;
+    try {
+      const response = await fetch(`${BASE_URL}/${id}`, {
+        method: 'DELETE'
+      });
+      if (response.ok) {
+        setSuccess('Técnico eliminado exitosamente');
+        fetchTecnicos();
+      } else {
+        setError('Error al eliminar técnico');
+      }
+    } catch (err) {
+      setError('Error al eliminar técnico');
+    }
+  };
+
+  const handleEditTecnico = (tecnico) => {
+    setFormData({
+      nombre: tecnico.nombre,
+      apellido: tecnico.apellido,
+      telefono: tecnico.telefono,
+      rol: tecnico.rol,
+      contrasena: ''
+    });
+    setEditingId(tecnico.id);
+  };
+
+  // Handler para el formulario de técnicos
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  // Handler para crear o actualizar técnico
+  const handleSubmit = editingId ? handleUpdateTecnico : handleCreateTecnico;
+
   useEffect(() => {
     const storedDni = localStorage.getItem('dni');
     const storedRole = localStorage.getItem('role');
@@ -384,48 +466,187 @@ const AdminDashboardContent = () => {
     }
   };
 
+  const [activeModule, setActiveModule] = useState('caja'); // 'caja', 'tecnicos', 'exportar', 'estadisticas'
+
+  // Cierra sidebar al cambiar módulo en móvil
+  useEffect(() => {
+    if (sidebarOpen && isMobile) setSidebarOpen(false);
+    // eslint-disable-next-line
+  }, [activeModule]);
+
+  // Cargar técnicos al montar el componente
+  useEffect(() => {
+    fetchTecnicos();
+  }, []);
+
   return (
-    <div className={`admin-dashboard ${isMobile ? 'mobile' : ''}`}>
-      <div className="header">
-        <h1>Bienvenido al Panel de Administración</h1>
-        <div className="user-info">
-          {currentUser ? (
-            <span>Usuario: {currentUser.dni} - Rol: {currentUser.rol}</span>
-          ) : (
-            <span>Iniciando sesión...</span>
-          )}
-        </div>
-      </div>
+    <div className="admin-dashboard">
+      {/* Botón hamburguesa solo en móvil */}
+      <button
+        className="sidebar-toggle"
+        style={{ display: isMobile ? 'block' : 'none' }}
+        onClick={() => setSidebarOpen(true)}
+        aria-label="Abrir menú lateral"
+      >
+        <i className="fas fa-bars"></i>
+      </button>
+      {/* Backdrop para cerrar sidebar */}
+      {isMobile && sidebarOpen && (
+        <div className="sidebar-backdrop" onClick={() => setSidebarOpen(false)}></div>
+      )}
       <div className="content">
-        <div className="sidebar">
-          {/* Eliminado botón de Órdenes, solo quedan Caja y Exportar Contactos */}
-          <button onClick={() => setShowCaja(true)} className={showCaja ? 'active' : ''}>Caja</button>
-          <button onClick={handleExportContacts} disabled={exporting}>
-            {exporting ? 'Exportando...' : 'Exportar Contactos'}
+        <aside className={`sidebar${isMobile && sidebarOpen ? ' open' : ''}`}> 
+          {/* Botón cerrar en sidebar móvil */}
+          {isMobile && (
+            <button
+              style={{ position: 'absolute', top: 18, right: 18, background: 'none', color: '#fff', border: 'none', fontSize: '2rem', zIndex: 2101 }}
+              onClick={() => setSidebarOpen(false)}
+              aria-label="Cerrar menú lateral"
+            >
+              <i className="fas fa-times"></i>
+            </button>
+          )}
+          <button
+            className={activeModule === 'tecnicos' ? 'active' : ''}
+            onClick={() => setActiveModule('tecnicos')}
+            aria-label="Gestionar Técnicos"
+          >
+            <i className="fas fa-users-cog"></i> Gestionar Técnicos
           </button>
           <button
-            className="button is-link"
-            style={{ borderRadius: 12, fontWeight: 700, background: '#23263A', color: '#A5B4FC', border: '2px solid #6366f1', marginTop: 8 }}
-            onClick={() => navigate('/employee-dashboard', { replace: true })}
+            className={activeModule === 'caja' ? 'active' : ''}
+            onClick={() => setActiveModule('caja')}
+            aria-label="Caja"
           >
-            <span className={window.innerWidth < 768 ? '' : 'mr-2'}>⬅️</span>
-            {window.innerWidth >= 768 && 'Volver al Panel de Técnicos'}
+            <i className="fas fa-cash-register"></i> Caja
           </button>
           <button
-            className="button is-info"
-            style={{ borderRadius: 12, fontWeight: 700, background: '#2563eb', color: '#fff', border: '2px solid #2563eb', marginTop: 8, marginBottom: 8 }}
-            onClick={() => navigate('/admin-dashboard/tecnico-stats')}
+            className={activeModule === 'exportar' ? 'active' : ''}
+            onClick={() => setActiveModule('exportar')}
+            aria-label="Exportar Contactos"
           >
-            <span className={window.innerWidth < 768 ? '' : 'mr-2'}>📊</span>
-            Ver detalles técnicos
+            <i className="fas fa-file-export"></i> Exportar Contactos
           </button>
+          <button
+            className={activeModule === 'estadisticas' ? 'active' : ''}
+            onClick={() => setActiveModule('estadisticas')}
+            aria-label="Estadísticas"
+          >
+            <i className="fas fa-chart-bar"></i> Estadísticas
+          </button>
+          <button
+            className={activeModule === 'panel' ? 'active' : ''}
+            onClick={() => navigate('/employee-dashboard')}
+            aria-label="Panel de Técnicos"
+          >
+            <i className="fas fa-user-shield"></i> Panel de Técnicos
+          </button>
+          <button
+            className={activeModule === 'listar' ? 'active' : ''}
+            onClick={() => setActiveModule('listar')}
+            aria-label="Listar Técnicos"
+          >
+            <i className="fas fa-list"></i> Listar Técnicos
+          </button>
+        </aside>
+    <main className="main">
+      {/* Formulario de técnicos mejorado */}
+      {activeModule === 'tecnicos' && (
+        <section className="form-tecnico" style={{ background: 'linear-gradient(135deg, #b2f0ff 0%, #e0c3fc 100%)', borderRadius: '22px', boxShadow: '0 4px 32px #a770ef22', padding: '2.5rem 2rem', marginBottom: '2rem' }}>
+          <h2 style={{ fontWeight: 900, fontSize: '2rem', color: '#23263a', textAlign: 'center', marginBottom: '1.5rem', letterSpacing: '1px' }}>
+            <i className="fas fa-user-plus" style={{ color: '#43e97b', marginRight: '0.5em' }}></i> Crear Nuevo Técnico
+          </h2>
+          <form onSubmit={handleSubmit} style={{ display: 'flex', flexWrap: 'wrap', gap: '1.2rem', justifyContent: 'center' }}>
+            <input className="input" style={{ flex: '1 1 40%', minWidth: '220px' }} type="text" name="nombre" placeholder="Nombre" value={formData.nombre} onChange={handleChange} required />
+            <input className="input" style={{ flex: '1 1 40%', minWidth: '220px' }} type="text" name="apellido" placeholder="Apellido" value={formData.apellido} onChange={handleChange} required />
+            <input className="input" style={{ flex: '1 1 40%', minWidth: '220px' }} type="text" name="telefono" placeholder="DNI" value={formData.telefono} onChange={handleChange} required />
+            <select className="input" style={{ flex: '1 1 40%', minWidth: '220px' }} name="rol" value={formData.rol} onChange={handleChange} required>
+              <option value="">Seleccionar Rol</option>
+              <option value="tecnico">Técnico</option>
+              <option value="administrador">Administrador</option>
+            </select>
+            <input className="input" style={{ flex: '1 1 100%', minWidth: '220px' }} type="password" name="contrasena" placeholder="Contraseña" value={formData.contrasena} onChange={handleChange} required />
+            <button type="submit" className="btn-crear-tecnico">
+              <i className="fas fa-plus-circle"></i> {editingId ? 'Actualizar' : 'Crear'}
+            </button>
+          </form>
+          <h3 style={{ fontWeight: 800, fontSize: '1.4rem', color: '#23263a', textAlign: 'center', marginTop: '2.5rem', letterSpacing: '1px' }}>
+            <i className="fas fa-users" style={{ color: '#36d1c4', marginRight: '0.5em' }}></i> Lista de Técnicos
+          </h3>
+          <div style={{ marginTop: '1.5rem' }}>
+            {tecnicos.map((tecnico, idx) => (
+              <div className="card-tecnico" key={tecnico.id || idx}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '1.2em' }}>
+                  <i className="fas fa-user-tie fa-2x" style={{ color: '#fff', background: 'linear-gradient(90deg, #43e97b 0%, #38f9d7 100%)', borderRadius: '50%', padding: '0.5em' }}></i>
+                  <div>
+                    <div style={{ fontWeight: 700, fontSize: '1.1em', letterSpacing: '0.5px' }}>{tecnico.nombre} {tecnico.apellido}</div>
+                    <div className="tag">{tecnico.rol}</div>
+                    <div style={{ fontSize: '0.95em', color: '#fff9', marginTop: '0.2em' }}>DNI: {tecnico.telefono}</div>
+                  </div>
+                  <div style={{ marginLeft: 'auto', display: 'flex', gap: '0.7em' }}>
+                    <button className="ed-btn ed-btn-blue" title="Editar" onClick={() => handleEditTecnico(tecnico)}>
+                      <span role="img" aria-label="Editar">✏️</span>
+                    </button>
+                    <button className="ed-btn ed-btn-red" title="Eliminar" onClick={() => handleDeleteTecnico(tecnico.id)}>
+                      <span role="img" aria-label="Eliminar">🗑️</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+      {activeModule === 'caja' && (
+              <CierreCajaSection />
+            )}
+            {activeModule === 'exportar' && (
+              <div className="box has-text-centered" style={{maxWidth: 500, margin: '2rem auto'}}>
+                <h2 className="title is-5 mb-4">Exportar Contactos</h2>
+                <button className={`button is-info is-large ${exporting ? 'is-loading' : ''}`} onClick={handleExportContacts} disabled={exporting}>
+                  <span className="icon"><i className="fas fa-address-book"></i></span>
+                  <span>{exporting ? 'Exportando...' : 'Exportar Contactos'}</span>
+                </button>
+              </div>
+            )}
+            {activeModule === 'estadisticas' && (
+              <div className="box has-text-centered" style={{maxWidth: 700, margin: '2rem auto'}}>
+                <h2 className="title is-5 mb-4">Estadísticas Técnicos</h2>
+                <button className="button is-link is-large" onClick={() => navigate('/admin-dashboard/tecnico-stats')}>
+                  <span className="icon"><i className="fas fa-chart-bar"></i></span>
+                  <span>Ver Estadísticas</span>
+                </button>
+              </div>
+            )}
+            {activeModule === 'listar' && (
+      <section className="form-tecnico" style={{ background: 'linear-gradient(135deg, #23263a 0%, #6366f1 100%)', borderRadius: '22px', boxShadow: '0 4px 32px #23263a22', padding: '2.5rem 2rem', marginBottom: '2rem' }}>
+        <h2 style={{ fontWeight: 900, fontSize: '2rem', color: '#fff', textAlign: 'center', marginBottom: '1.5rem', letterSpacing: '1px' }}>
+          <i className="fas fa-list" style={{ color: '#43e97b', marginRight: '0.5em' }}></i> Lista de Técnicos y Administradores
+        </h2>
+        <div style={{ marginTop: '1.5rem' }}>
+          {tecnicos.length === 0 && <div style={{color:'#fff',textAlign:'center'}}>No hay técnicos ni administradores registrados.</div>}
+          {tecnicos.filter(t => t.rol === 'tecnico' || t.rol === 'admin' || t.rol === 'administrador').map((tecnico, idx) => (
+            <div className="card-tecnico" key={tecnico.id || idx}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '1.2em' }}>
+                <i className="fas fa-user-tie fa-2x" style={{ color: '#fff', background: 'linear-gradient(90deg, #43e97b 0%, #38f9d7 100%)', borderRadius: '50%', padding: '0.5em' }}></i>
+                <div>
+                  <div style={{ fontWeight: 700, fontSize: '1.1em', letterSpacing: '0.5px' }}>{tecnico.nombre} {tecnico.apellido}</div>
+                  <div className="tag">{tecnico.rol}</div>
+                  <div style={{ fontSize: '0.95em', color: '#fff9', marginTop: '0.2em' }}>DNI: {tecnico.telefono}</div>
+                </div>
+                <div style={{ marginLeft: 'auto', display: 'flex', gap: '0.7em' }}>
+                  <button className="ed-btn ed-btn-blue" title="Editar" onClick={() => handleEditTecnico(tecnico)}><i className="fas fa-edit"></i></button>
+                  <button className="ed-btn ed-btn-red" title="Eliminar" onClick={() => handleDeleteTecnico(tecnico.id)}><i className="fas fa-trash"></i></button>
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
-        <div className="main">
-          {/* Solo se muestra la sección de Caja */}
-          <CierreCajaSection />
-        </div>
-      </div>
-    </div>
+      </section>
+    )}
+    </main>
+  </div>
+</div>
   );
 };
 
