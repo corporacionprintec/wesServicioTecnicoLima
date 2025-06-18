@@ -379,11 +379,13 @@ function TechnicianDashboard() {
   const currentUserLS = JSON.parse(localStorage.getItem('currentUser') || '{}');
 
   return (
-    <div>
+    <div className="employee-dashboard-container">
       {/* Navbar */}
       <div className="ed-navbar">
         <div className="ed-navbar-left">
-          <span className="ed-navbar-logo">🛠️ PRINTEC Dashboard</span>
+          <span className="ed-navbar-logo" style={{ color: '#ffab00', fontWeight: 'bold', fontSize: '1.3em', letterSpacing: 1 }}>
+            🛠️ PRINTEC LIMA
+          </span>
         </div>
         <div className="ed-navbar-center">
           <span className="ed-navbar-user">👨‍🔧 {technicianInfo.nombre.split(' ')[0]} {technicianInfo.apellido.split(' ')[0]}</span>

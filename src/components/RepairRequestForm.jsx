@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import eytelImage from '../imagenes/eytel.jpeg';
+import eytelImage from '../imagenes/eytel.jpg';
 import logoPath from '../imagenes/printec.jpg';
 import '../cssGeneral/repairRequestForm/repairRequestForm.css';
 import jsPDF from 'jspdf';
@@ -716,7 +716,7 @@ const RepairRequestForm = ({ prefillData = {} }) => {
           photosFormData.append('files', foto);
         });
 
-        const uploadResponse = await fetch('https://servidorserviciotecnico-production.up.railway.app/upload/photos', {
+        const uploadResponse = await fetch('https://servidorserviciotecnicolima-production.up.railway.app/upload/photos', {
           method: 'POST',
           body: photosFormData
         });

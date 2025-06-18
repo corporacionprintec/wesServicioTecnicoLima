@@ -90,7 +90,7 @@ const ReceiptGenerator = ({ orderData, onSuccess, onError, onAfterSuccess }) => 
       pdf.setFontSize(10);
       pdf.setTextColor(0, 0, 0);
       pdf.setFont('helvetica', 'normal');
-      pdf.text('CALLE HUANUCO N.201- INT. 201 ICA- ICA - ICA', margin, y);
+      pdf.text('JOSE DIAZ CANSECO 106A SAN MARTÍN DE PORRES', margin, y);
       y += lineHeight - 2;
       pdf.text('RUC: 20610753567 • +51966177851', margin, y);
       y += lineHeight - 2;
@@ -256,6 +256,22 @@ const ReceiptGenerator = ({ orderData, onSuccess, onError, onAfterSuccess }) => 
       pdf.text('TOTAL:', pageWidth - margin - totalBoxWidth + 12, y + 2, { align: 'left' });
       pdf.setFont('helvetica', 'bold');
       pdf.text(`S/ ${parseFloat(costoTotal).toFixed(2)}`, pageWidth - margin - 12, y + 2, { align: 'right' });
+      // Información de cuentas para pagos (diseño más profesional y bien separado)
+      y += 18; // Espacio extra después del total
+      const cuentasBoxHeight = 28;
+      pdf.setFillColor(255, 249, 196); // Fondo amarillo pastel
+      pdf.roundedRect(margin, y, pageWidth - (margin * 2), cuentasBoxHeight, 5, 5, 'F');
+      pdf.setFont('helvetica', 'bold');
+      pdf.setFontSize(12);
+      pdf.setTextColor(255, 87, 34); // Naranja fuerte
+      pdf.text('CUENTAS PARA TUS PAGOS: EYTER  ROJAS ', pageWidth / 2, y + 8, { align: 'center' });
+      pdf.setFont('helvetica', 'normal');
+      pdf.setFontSize(10);
+      pdf.setTextColor(33, 33, 33);
+      pdf.text('BCP Soles: 38004502346086', pageWidth / 2, y + 15, { align: 'center' });
+      pdf.text('Interbancaria: 00238010450234608642', pageWidth / 2, y + 21, { align: 'center' });
+      pdf.text('Yape: 51 929 620 433', pageWidth / 2, y + 27, { align: 'center' });
+      y += cuentasBoxHeight + 8;
       // Pie de página: solo el mensaje de gracias, más abajo
       y = pageHeight - 24;
       pdf.setFillColor(240, 248, 255);

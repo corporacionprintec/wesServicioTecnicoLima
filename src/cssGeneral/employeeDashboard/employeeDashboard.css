@@ -1,5 +1,23 @@
 /* Estilos para EmployeeDashboard extraídos del componente - Versión compacta con mejor legibilidad */
 
+body {
+  margin: 0;
+  padding: 0;
+  background-color: #1e90ff !important;
+}
+
+.App {
+  background-color: #1e90ff;
+  min-height: 100vh;
+}
+
+/* --- GLOBAL STYLES --- */
+.ed-main-content {
+  background-color: #f0f7ff; /* Color de fondo principal */
+  min-height: 100vh;
+  padding: 1rem;
+}
+
 .order-row:hover {
     background-color: #4188c4 !important;
     transform: translateY(-1px);
@@ -97,27 +115,30 @@
   .ed-main-content {
     max-width: 1100px;
     margin: 0 auto;
-    padding: 0;
+    padding: 1rem;
+    background-color: #1e90ff;
+    min-height: 100vh;
   }
   
   /* --- TABLE CARD --- */
   .ed-table-card {
-    background: #fff;
+    background: rgba(255, 255, 255, 0.9);
     border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(26,77,124,0.07);
+    box-shadow: 0 2px 8px rgba(26,77,124,0.15);
     padding: 0.8rem 1rem 0.8rem 1rem;
+    backdrop-filter: blur(10px);
   }
   
   /* NUEVO: Fondo azul claro y sin espacios para controles */
   .ed-table-header {
-    background: #eaf3fb;
+    background: rgba(255, 255, 255, 0.85);
     margin: 0;
     padding: 0.4rem 0;
     border-radius: 0;
     box-shadow: none;
   }
   .ed-table-search {
-    background: #eaf3fb;
+    background: rgba(255, 255, 255, 0.85);
     width: 100%;
     margin: 0;
     border-radius: 0;
