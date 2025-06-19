@@ -39,9 +39,9 @@ export function AuthProvider({ children }) {
         telefono: data.user.telefono
       };
       setCurrentUser(userObj);
-      setLoginRole(role);
+      setLoginRole(data.user.rol); // Usar siempre el rol devuelto por el backend
       localStorage.setItem('currentUser', JSON.stringify(userObj));
-      localStorage.setItem('loginRole', role);
+      localStorage.setItem('loginRole', data.user.rol);
       return { success: true, user: userObj };
     } catch (error) {
       console.error('Error de conexión:', error);

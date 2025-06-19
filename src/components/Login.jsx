@@ -65,19 +65,24 @@ function LoginPage() {
         localStorage.setItem('dni', dni);
         localStorage.setItem('role', role);
         localStorage.setItem('password', password);
-        if (result.user.rol === 'administrador') {
+        // Permitir que superAdmin acceda como tecnico, administrador o superAdmin
+        if (result.user.rol === 'superAdmin') {
+          // Permitir acceso a cualquier dashboard según el rol seleccionado
+          setError('');
+          navigate('/employee-dashboard');
+        } else if (result.user.rol === 'administrador') {
           if (role === 'administrador') {
+            setError('');
             navigate('/admin-dashboard');
-            window.location.reload();
           } else if (role === 'tecnico') {
+            setError('');
             navigate('/employee-dashboard');
-            window.location.reload();
           } else {
             setError('Rol no reconocido');
           }
         } else if (result.user.rol === 'tecnico' && role === 'tecnico') {
+          setError('');
           navigate('/employee-dashboard');
-          window.location.reload();
         } else {
           setError('Rol o credenciales incorrectas');
         }
@@ -213,6 +218,7 @@ function LoginPage() {
               >
                 <option value="tecnico">Técnico</option>
                 <option value="administrador">Administrador</option>
+                <option value="superAdmin">SuperAdmin</option>
               </select>
             </div>
             <button type="submit" className="login-btn" disabled={isBlocked}>Ingresar</button>

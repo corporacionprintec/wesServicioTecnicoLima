@@ -234,7 +234,7 @@ const AdminDashboardContent = () => {
     if (tecnicoId === 'todos') {
       // Devuelve un objeto {tecnicoId: cantidad}
       const resultado = {};
-      tecnicos.filter(t => t.rol === 'tecnico' || t.rol === 'administrador').forEach(tecnico => {
+      tecnicos.filter(t => t.rol === 'tecnico' || t.rol === 'administrador' || t.rol === 'superAdmin').forEach(tecnico => {
         resultado[tecnico.id] = ordenesValidas.filter(orden => getTecnicoIdFromOrden(orden) === String(tecnico.id)).length;
       });
       return resultado;
@@ -548,13 +548,15 @@ const AdminDashboardContent = () => {
           >
             Listar Técnicos
           </button>
-          <button
-            onClick={() => window.open('https://webserviciotecnico-production.up.railway.app/employee-dashboard', '_blank')}
-            aria-label="Sucursal Ica"
-            style={{ background: '#f59e42', color: '#fff', border: '2px solid #f59e42', borderRadius: 12, fontWeight: 700, marginTop: 8, marginBottom: 8 }}
-          >
-            Sucursal Ica
-          </button>
+          {currentUser.rol === 'superAdmin' && (
+            <button
+              onClick={() => window.open('https://webserviciotecnico-production.up.railway.app/employee-dashboard', '_blank')}
+              aria-label="Sucursal Ica"
+              style={{ background: '#f59e42', color: '#fff', border: '2px solid #f59e42', borderRadius: 12, fontWeight: 700, marginTop: 8, marginBottom: 8 }}
+            >
+              Sucursal Ica
+            </button>
+          )}
         </aside>
     <main className="main">
       {/* Formulario de técnicos mejorado */}
@@ -632,7 +634,7 @@ const AdminDashboardContent = () => {
         </h2>
         <div style={{ marginTop: '1.5rem' }}>
           {tecnicos.length === 0 && <div style={{color:'#fff',textAlign:'center'}}>No hay técnicos ni administradores registrados.</div>}
-          {tecnicos.filter(t => t.rol === 'tecnico' || t.rol === 'admin' || t.rol === 'administrador').map((tecnico, idx) => (
+          {tecnicos.filter(t => t.rol === 'tecnico' || t.rol === 'admin' || t.rol === 'administrador' || t.rol === 'superAdmin').map((tecnico, idx) => (
             <div className="card-tecnico" key={tecnico.id || idx}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '1.2em' }}>
                 <i className="fas fa-user-tie fa-2x" style={{ color: '#fff', background: 'linear-gradient(90deg, #43e97b 0%, #38f9d7 100%)', borderRadius: '50%', padding: '0.5em' }}></i>

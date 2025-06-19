@@ -46,7 +46,7 @@ function App() {
           <Route
             path="/employee-dashboard"
             element={
-              currentUser && (["tecnico", "administrador"].includes(loginRole) || ["tecnico", "administrador"].includes(currentUser.rol)) ? (
+              currentUser && (['tecnico', 'administrador', 'superAdmin'].includes(loginRole) || ['tecnico', 'administrador', 'superAdmin'].includes(currentUser.rol)) ? (
                 <EmployeeDashboardPage />
               ) : (
                 <LoginPage />
@@ -56,7 +56,7 @@ function App() {
           <Route
             path="/admin-dashboard"
             element={
-              currentUser && (loginRole === "administrador" || currentUser.rol === "administrador") ? (
+              currentUser && (['administrador', 'superAdmin'].includes(loginRole) || ['administrador', 'superAdmin'].includes(currentUser.rol)) ? (
                 <AdminDashboardPage />
               ) : (
                 <LoginPage />

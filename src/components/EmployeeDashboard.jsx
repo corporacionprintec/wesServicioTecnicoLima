@@ -394,7 +394,7 @@ function TechnicianDashboard() {
           <button className="ed-btn ed-btn-green" onClick={handleGoBack}>
             <span style={{ fontSize: 18 }}>⬅️</span> Nueva 
           </button>
-          {currentUserLS.rol === 'administrador' && (
+          {['administrador', 'superAdmin'].includes(currentUserLS.rol) && (
             <button
               className="ed-btn ed-btn-stats"
               style={{
