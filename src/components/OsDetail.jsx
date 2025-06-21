@@ -735,6 +735,36 @@ const OsDetail = ({ showDetailsModal, setShowDetailsModal, currentRequest, onDel
                   </span>
                 )}
               </div>
+
+              {/* Teléfono y WhatsApp del cliente */}
+              {allDataOfCurrentRequest?.data?.dispositivo?.cliente?.telefono && (
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.7em', marginTop: 10, background: 'rgba(255,255,255,0.13)', borderRadius: 8, padding: '6px 14px', boxShadow: '0 2px 8px rgba(91,134,229,0.09)' }}>
+                  <a
+                    href={`tel:${allDataOfCurrentRequest.data.dispositivo.cliente.telefono}`}
+                    className="button is-small"
+                    style={{ background: 'linear-gradient(90deg, #43e97b 0%, #38f9d7 100%)', color: '#1a3a1a', border: 'none', borderRadius: 6, boxShadow: '0 1px 4px #43e97b33', fontSize: '1.25em', display: 'flex', alignItems: 'center', justifyContent: 'center', width: 36, height: 36, padding: 0 }}
+                    title="Llamar al cliente"
+                    onClick={e => e.stopPropagation()}
+                  >
+                    📞
+                  </a>
+                  <a
+                    href={`https://wa.me/+51${allDataOfCurrentRequest.data.dispositivo.cliente.telefono.replace(/\D/g, '')}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="button is-small"
+                    style={{ background: 'linear-gradient(90deg, #25d366 0%, #128c7e 100%)', color: '#fff', border: 'none', borderRadius: 6, boxShadow: '0 1px 4px #25d36633', fontSize: '1.25em', display: 'flex', alignItems: 'center', justifyContent: 'center', width: 36, height: 36, padding: 0 }}
+                    title="Enviar WhatsApp"
+                    onClick={e => e.stopPropagation()}
+                  >
+                    💬
+                  </a>
+                  <span style={{ color: '#23263A', fontWeight: 600, fontSize: '1em', letterSpacing: '0.5px', marginLeft: 6, background: '#fff', borderRadius: 5, padding: '2px 10px', boxShadow: '0 1px 4px #b6d0f733' }}>{allDataOfCurrentRequest.data.dispositivo.cliente.telefono}</span>
+                </div>
+              )}
+
+
+
             </header>
 
             {toastMessage.show && (

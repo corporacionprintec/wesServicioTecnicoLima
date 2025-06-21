@@ -5,7 +5,6 @@ import LoginPage from "./pages/LoginPage";
 import RepairRequestForm from "./components/RepairRequestForm";
 import EmployeeDashboardPage from "./components/EmployeeDashboard";
 import AdminDashboardPage from "./pages/AdminDashboardPage";
-import EstadisticasPersonal from "./pages/EstadisticasPersonal";
 import AdminDashboardTechnicianStatsPage from './pages/AdminDashboardTechnicianStatsPage';
 import { useAuth } from "./contexts/AuthContext";
 
@@ -42,7 +41,6 @@ function App() {
           <Route path="/homepage" element={<HomePage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/repair-request-form" element={<RepairRequestForm />} />
-          <Route path="/Estadistica-personal" element={<EstadisticasPersonal />} />
           <Route
             path="/employee-dashboard"
             element={
@@ -66,7 +64,7 @@ function App() {
           <Route
             path="/admin-dashboard/tecnico-stats"
             element={
-              currentUser && (loginRole === "administrador" || currentUser.rol === "administrador") ? (
+              currentUser && (['administrador', 'superAdmin'].includes(loginRole) || ['administrador', 'superAdmin'].includes(currentUser.rol)) ? (
                 <AdminDashboardTechnicianStatsPage />
               ) : (
                 <LoginPage />

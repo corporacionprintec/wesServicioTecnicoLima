@@ -360,6 +360,21 @@ function TechnicianDashboard() {
   const handleGoBack = () => {
     navigate('/');
   };
+
+  useEffect(() => {
+    // Si hay una orden seleccionada desde otra vista, abrir el modal automáticamente
+    const selectedOrderId = sessionStorage.getItem('selectedOrderId');
+    if (selectedOrderId && ordenes && ordenes.length > 0) {
+      const orden = ordenes.find(o => String(o.id) === String(selectedOrderId));
+      if (orden) {
+        setCurrentRequest(orden);
+        setShowDetailsModal(true);
+        sessionStorage.removeItem('selectedOrderId');
+      }
+    }
+  }, [ordenes]);
+
+
   if (isLoadingAuth) return <div>Cargando...</div>;
   if (!currentUser) { window.location.href = '/login'; return null; }
   const filterOptions = [
