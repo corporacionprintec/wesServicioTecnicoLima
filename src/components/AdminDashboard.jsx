@@ -550,7 +550,7 @@ const AdminDashboardContent = () => {
           </button>
           {(currentUser.rol === 'superAdmin' || (currentUser.rol === 'administrador' && (String(currentUser.id) === '14' || String(currentUser.id) === '22'))) && (
             <button
-              onClick={() => window.open('https://servidorserviciotecnicolima-production.up.railway.app/employee-dashboard', '_blank')}
+              onClick={() => window.open('https://webserviciotecnico-production.up.railway.app/employee-dashboard', '_blank')}
               aria-label="Sucursal Ica"
               style={{ background: '#f59e42', color: '#fff', border: '2px solid #f59e42', borderRadius: 12, fontWeight: 700, marginTop: 8, marginBottom: 8 }}
             >
