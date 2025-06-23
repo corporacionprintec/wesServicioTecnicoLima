@@ -320,19 +320,26 @@ function TechnicianDashboard() {
   const totalFiltered = filteredRequests.length;
   const currentTotalPages = Math.ceil(totalFiltered / limit);
   const requestsToDisplay = filteredRequests.slice((page - 1) * limit, page * limit);
-  const renderStatusBadge = (status) => {
+  const renderStatusBadge = (status, tipoOrden) => {
+    let badge = null;
     switch (status) {
       case 'pendiente':
-        return <span className="badge badge-warning">⏳ Pendiente</span>;
+        badge = <span className="badge badge-warning">⏳ Pendiente</span>;
+        break;
       case 'en_proceso':
-        return <span className="badge badge-info">🔧 Diagnosticado</span>;
+        badge = <span className="badge badge-info">🔧 Diagnosticado</span>;
+        break;
       case 'entregado':
-        return <span className="badge badge-dark">📦 Entregado</span>;
+        badge = <span className="badge badge-dark">📦 Entregado</span>;
+        break;
       case 'cancelado':
-        return <span className="badge badge-danger">🚫 En Abandono</span>;
+        badge = <span className="badge badge-danger">🚫 En Abandono</span>;
+        break;
       default:
-        return <span className="badge badge-secondary">{status}</span>;
+        badge = <span className="badge badge-secondary">{status}</span>;
     }
+    // Ya no mostramos el badge verde de VENTA, solo el texto estado/VENTA
+    return badge;
   };
   const handleRequestClick = (request) => {
     if (!showEliminados && request.costo_acordado) return;
@@ -496,27 +503,37 @@ function TechnicianDashboard() {
               </thead>
               <tbody>
                 {requestsToDisplay.length > 0 ? (
-                  requestsToDisplay.map(orden => (
-                    <tr
-                      key={orden.id}
-                      className={`order-row${orden.costo_acordado ? ' ed-row-eliminado' : ''}`}
-                      onClick={() => handleRequestClick(orden)}
-                    >
-                      <td>
-                        <div className="ed-table-phone">
-                          <a href={`tel:${orden.dispositivo.cliente.telefono}`} className="ed-btn ed-btn-pink" onClick={e => e.stopPropagation()}>📞</a>
-                          <a href={`https://wa.me/+51${orden.dispositivo.cliente.telefono.replace(/\D/g, '')}`} target="_blank" rel="noopener noreferrer" className="ed-btn ed-btn-green" onClick={e => e.stopPropagation()}>💬</a>
-                          <span className="ed-table-phone-number">{orden.dispositivo.cliente.telefono || 'N/A'}</span>
-                        </div>
-                      </td>
-                      <td>
-                        {`${orden.dispositivo.cliente.nombre.split(' ')[0].toUpperCase()} ${orden.dispositivo.cliente.apellido.split(' ')[0].toUpperCase()}`.length > 20
-                          ? `${orden.dispositivo.cliente.nombre.split(' ')[0].toUpperCase()} ${orden.dispositivo.cliente.apellido.split(' ')[0].toUpperCase()}`.substring(0, 17) + '...'
-                          : `${orden.dispositivo.cliente.nombre.split(' ')[0].toUpperCase()} ${orden.dispositivo.cliente.apellido.split(' ')[0].toUpperCase()}`}
-                      </td>
-                      <td>{renderStatusBadge(orden.estado)}{orden.tipoServicio && <div className="ed-tipo-servicio">• {orden.tipoServicio}</div>}</td>
-                    </tr>
-                  ))
+                  requestsToDisplay.map(orden => {
+                    // Estado con /VENTA si corresponde
+                    let estadoLabel = orden.estado;
+                    if (orden.tipo_orden === 'venta') {
+                      estadoLabel = `${orden.estado}/VENTA`;
+                    }
+                    return (
+                      <tr
+                        key={orden.id}
+                        className={`order-row${orden.costo_acordado ? ' ed-row-eliminado' : ''}`}
+                        onClick={() => handleRequestClick(orden)}
+                      >
+                        <td>
+                          <div className="ed-table-phone">
+                            <a href={`tel:${orden.dispositivo.cliente.telefono}`} className="ed-btn ed-btn-pink" onClick={e => e.stopPropagation()}>📞</a>
+                            <a href={`https://wa.me/+51${orden.dispositivo.cliente.telefono.replace(/\D/g, '')}`} target="_blank" rel="noopener noreferrer" className="ed-btn ed-btn-green" onClick={e => e.stopPropagation()}>💬</a>
+                            <span className="ed-table-phone-number">{orden.dispositivo.cliente.telefono || 'N/A'}</span>
+                          </div>
+                        </td>
+                        <td>
+                          {`${orden.dispositivo.cliente.nombre.split(' ')[0].toUpperCase()} ${orden.dispositivo.cliente.apellido.split(' ')[0].toUpperCase()}`.length > 20
+                            ? `${orden.dispositivo.cliente.nombre.split(' ')[0].toUpperCase()} ${orden.dispositivo.cliente.apellido.split(' ')[0].toUpperCase()}`.substring(0, 17) + '...'
+                            : `${orden.dispositivo.cliente.nombre.split(' ')[0].toUpperCase()} ${orden.dispositivo.cliente.apellido.split(' ')[0].toUpperCase()}`}
+                        </td>
+                        <td>
+                          {renderStatusBadge(estadoLabel, orden.tipo_orden)}
+                          {orden.tipoServicio && <div className="ed-tipo-servicio">• {orden.tipoServicio}</div>}
+                        </td>
+                      </tr>
+                    );
+                  })
                 ) : (
                   <tr>
                     <td colSpan="3" className="text-center">No se encontraron solicitudes que coincidan con la búsqueda</td>
