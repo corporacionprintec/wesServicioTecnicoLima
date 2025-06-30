@@ -254,8 +254,10 @@ const AdminDashboardContent = () => {
     todasLasOrdenes.forEach(orden => {
       const cliente = orden.dispositivo?.cliente;
       if (cliente) {
+        // Nombre y apellido en mayúsculas, seguido de CST al final
+        const nombreCompletoCST = `${(cliente.nombre || '').toUpperCase()} ${(cliente.apellido || '').toUpperCase()} CST`.trim();
         contacts.push({
-          nombre: `${cliente.nombre || ''} ${cliente.apellido || ''}`.trim(),
+          nombre: nombreCompletoCST,
           telefono: cliente.telefono || 'Sin teléfono'
         });
       }
@@ -265,7 +267,8 @@ const AdminDashboardContent = () => {
     contacts.forEach(contact => {
       vcfContent += 'BEGIN:VCARD\n';
       vcfContent += 'VERSION:3.0\n';
-      vcfContent += `FN:${contact.nombre}\n`;
+      vcfContent += `N:${contact.nombre}\n`; // Usar N: en lugar de FN: para asegurar que se guarde el nombre completo
+      vcfContent += `FN:${contact.nombre}\n`; // Mantener FN: también para compatibilidad
       vcfContent += `TEL;TYPE=CELL:${contact.telefono}\n`;
       vcfContent += 'END:VCARD\n';
     });
@@ -509,16 +512,16 @@ const AdminDashboardContent = () => {
           <button
             className={activeModule === 'tecnicos' ? 'active' : ''}
             onClick={() => setActiveModule('tecnicos')}
-            aria-label="Gestionar Técnicos"
+            aria-label="Configuración"
           >
-            Gestionar Técnicos
+            Configuración
           </button>
           <button
             className={activeModule === 'caja' ? 'active' : ''}
             onClick={() => setActiveModule('caja')}
-            aria-label="Caja"
+            aria-label="Flujo de Caja"
           >
-            Caja
+            Flujo de Caja
           </button>
           <button
             className={activeModule === 'exportar' ? 'active' : ''}
@@ -529,7 +532,10 @@ const AdminDashboardContent = () => {
           </button>
           <button
             className={activeModule === 'estadisticas' ? 'active' : ''}
-            onClick={() => setActiveModule('estadisticas')}
+            onClick={() => {
+              setActiveModule('estadisticas');
+              navigate('/admin-dashboard/tecnico-stats');
+            }}
             aria-label="Estadísticas"
           >
             Estadísticas
@@ -537,16 +543,9 @@ const AdminDashboardContent = () => {
           <button
             className={activeModule === 'panel' ? 'active' : ''}
             onClick={() => navigate('/employee-dashboard')}
-            aria-label="Panel de Técnicos"
+            aria-label="Menú Principal"
           >
-            Panel de Técnicos
-          </button>
-          <button
-            className={activeModule === 'listar' ? 'active' : ''}
-            onClick={() => setActiveModule('listar')}
-            aria-label="Listar Técnicos"
-          >
-            Listar Técnicos
+            Menú Principal
           </button>
           {(currentUser.rol === 'superAdmin' || (currentUser.rol === 'administrador' && (String(currentUser.id) === '14' || String(currentUser.id) === '22'))) && (
             <button
