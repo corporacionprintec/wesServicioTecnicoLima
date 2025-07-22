@@ -26,7 +26,7 @@ const extractFileIdFromUrl = (url) => {
 };
 
 const OsDetail = ({ showDetailsModal, setShowDetailsModal, currentRequest, onDeleteOrden }) => {
-  // Estados generales
+  // Estados generales (move all useState to top)
   const [allDataOfCurrentRequest, setAllDataOfCurrentRequest] = useState(null);
   const [audioData, setAudioData] = useState({ audioUrl: null });
   const [comment, setComment] = useState("");
@@ -79,25 +79,76 @@ const OsDetail = ({ showDetailsModal, setShowDetailsModal, currentRequest, onDel
   // Estado para el costo total (usado en diagnóstico y pagos)
   const [costoTotal, setCostoTotal] = useState("");
 
+  // Estado para edición de cliente
+  const [isEditingCliente, setIsEditingCliente] = useState(false);
+  const [editedNombre, setEditedNombre] = useState("");
+  const [editedApellido, setEditedApellido] = useState("");
+  const [editedNombreApellido, setEditedNombreApellido] = useState("");
+  const [isSavingCliente, setIsSavingCliente] = useState(false);
+
+  const [editedTelefono, setEditedTelefono] = useState("");
+
+  // Bandera para saber si hay que enviar WhatsApp tras actualizar recibo
+  const [pendingWhatsApp, setPendingWhatsApp] = useState(false);
+  // Ref local para evitar múltiples aperturas de WhatsApp
+  const whatsappOpenedRef = useRef(false);
+  // Función para mostrar el técnico que recibió
+  const renderTecnicoRecibio = useCallback(() => {
+    if (!allDataOfCurrentRequest || !allDataOfCurrentRequest.data || !allDataOfCurrentRequest.data.dispositivo) return null;
+    const disp = allDataOfCurrentRequest.data.dispositivo;
+    const tecnicoRecibioObj = disp?.tecnicoRecibio || disp?.tecnico_recibio;
+    if (tecnicoRecibioObj && typeof tecnicoRecibioObj === 'object' && (tecnicoRecibioObj.nombre || tecnicoRecibioObj.apellido)) {
+      return (
+        <span style={{ marginRight: window.innerWidth < 769 ? 4 : 8, background: '#f5e960', color: '#23263A', borderRadius: 5, padding: window.innerWidth < 769 ? '1.5px 5px' : '2px 8px', fontWeight: 700, display: 'inline-block', fontSize: window.innerWidth < 769 ? '0.78em' : '1em', minWidth: 0 }}>
+          <b>Recibió:</b> {`${tecnicoRecibioObj.nombre || ''} ${tecnicoRecibioObj.apellido || ''}`.trim()}
+        </span>
+      );
+    } else if (typeof tecnicoRecibioObj === 'number' || typeof tecnicoRecibioObj === 'string') {
+      return (
+        <span style={{ marginRight: window.innerWidth < 769 ? 4 : 8, background: '#f5e960', color: '#23263A', borderRadius: 5, padding: window.innerWidth < 769 ? '1.5px 5px' : '2px 8px', fontWeight: 700, display: 'inline-block', fontSize: window.innerWidth < 769 ? '0.78em' : '1em', minWidth: 0 }}>
+          <b>Recibió:</b> ID: {tecnicoRecibioObj}
+        </span>
+      );
+    }
+    return null;
+  }, [allDataOfCurrentRequest]);
+
+  // useEffect para abrir WhatsApp solo cuando pendingWhatsApp está activo y reciboURL cambió DESPUÉS de actualizar el detalle
+  useEffect(() => {
+    if (
+      pendingWhatsApp &&
+      reciboURL &&
+      allDataOfCurrentRequest?.data?.dispositivo?.cliente?.telefono &&
+      !whatsappOpenedRef.current
+    ) {
+      setPendingWhatsApp(false); // Desactivar bandera ANTES de abrir WhatsApp para evitar múltiples ventanas
+      whatsappOpenedRef.current = true;
+      setTimeout(() => {
+        whatsappOpenedRef.current = false;
+      }, 1000);
+      const telefono = allDataOfCurrentRequest.data.dispositivo.cliente.telefono;
+      let telefonoFormateado = telefono.replace(/\D/g, '');
+      if (!telefonoFormateado.startsWith('51') && telefonoFormateado.length === 9) {
+        telefonoFormateado = '51' + telefonoFormateado;
+      }
+      const mensaje = `Hola, aquí está el recibo de servicio técnico de Importaciones Printec: ${reciboURL}`;
+      const whatsappURL = `https://wa.me/${telefonoFormateado}?text=${encodeURIComponent(mensaje)}`;
+      window.open(whatsappURL, '_blank');
+    }
+  }, [pendingWhatsApp, reciboURL, allDataOfCurrentRequest]);
+
   // Función para enviar el recibo por WhatsApp
   const handleSendWhatsApp = useCallback(() => {
     const telefono = allDataOfCurrentRequest?.data?.dispositivo?.cliente?.telefono;
-    
     if (!telefono) {
       showToast("No se encontró el número de teléfono del cliente.", "warning");
       return;
     }
-    
-    // Formatear el número de teléfono (asegurarse que tenga formato internacional)
     let telefonoFormateado = telefono.replace(/\D/g, '');
     if (!telefonoFormateado.startsWith('51') && telefonoFormateado.length === 9) {
       telefonoFormateado = '51' + telefonoFormateado;
     }
-    
-    // Crear mensaje con el enlace al recibo
     const mensaje = `Hola, aquí está el recibo de servicio técnico de Importaciones Printec: ${reciboURL}`;
-    
-    // Abrir WhatsApp con el número y mensaje
     const whatsappURL = `https://wa.me/${telefonoFormateado}?text=${encodeURIComponent(mensaje)}`;
     window.open(whatsappURL, '_blank');
   }, [allDataOfCurrentRequest, reciboURL]);
@@ -114,13 +165,16 @@ const OsDetail = ({ showDetailsModal, setShowDetailsModal, currentRequest, onDel
   }, [allDataOfCurrentRequest]);
   
   // Función de callback para cuando el PDF se genera correctamente
-  const handlePDFSuccess = useCallback(() => {
+  const handlePDFSuccess = useCallback(async () => {
     setIsGeneratingPDF(false);
-    // Actualizar la URL del recibo después de subir
-    setReciboURL(allDataOfCurrentRequest?.data?.dispositivo?.recibo);
     showToast("Recibo exportado correctamente", "success");
-  }, [allDataOfCurrentRequest]);
-  
+    // Después de generar el PDF, actualizar el detalle y SOLO después activar el envío a WhatsApp
+    if (allDataOfCurrentRequest?.data?.id) {
+      await getCurrentRequest(allDataOfCurrentRequest.data.id);
+      setPendingWhatsApp(true); // Esto abrirá WhatsApp solo después de que el detalle y el reciboURL estén actualizados
+    }
+  }, [allDataOfCurrentRequest, getCurrentRequest]);
+
   // Función de callback para cuando hay un error al generar el PDF
   const handlePDFError = useCallback((error) => {
     setIsGeneratingPDF(false);
@@ -192,7 +246,18 @@ const OsDetail = ({ showDetailsModal, setShowDetailsModal, currentRequest, onDel
       );
       const data = await response.json();
       if (data.status === "success") {
-        setAllDataOfCurrentRequest(data);
+        // Refrescar los datos de la orden para reflejar el nuevo estado
+        if (currentRequest?.id) {
+          const detalleResp = await fetch(`${BASE_URL}/ordenes/${currentRequest.id}`);
+          const detalleData = await detalleResp.json();
+          if (detalleData.status === "success") {
+            setAllDataOfCurrentRequest(detalleData);
+          } else {
+            setAllDataOfCurrentRequest(data); // fallback
+          }
+        } else {
+          setAllDataOfCurrentRequest(data);
+        }
         console.log("allDataOfCurrentRequest:", data);
       } else {
         showToast(data.message, "warning");
@@ -246,10 +311,6 @@ const OsDetail = ({ showDetailsModal, setShowDetailsModal, currentRequest, onDel
         const parsedUser = JSON.parse(storedUser);
         tecnicoRecibioId = parsedUser.id;
       }
-
-      // LOG: mostrar datos que se enviarán
-      console.log("Enviando a backend:", { qr_scan: qrResult.data, tecnico_recibio: tecnicoRecibioId });
-      showToast(`Enviando técnico_recibio: ${tecnicoRecibioId}`, "info");
 
       const response = await fetch(
         `${BASE_URL}/dispositivoscanup/${dispositivoId}`,
@@ -406,7 +467,6 @@ const OsDetail = ({ showDetailsModal, setShowDetailsModal, currentRequest, onDel
 
       // 3. Actualizar estado y UI
       await handleStatusChange("en_proceso");
-      
       setAllDataOfCurrentRequest((prev) => ({
         ...prev,
         data: {
@@ -420,10 +480,12 @@ const OsDetail = ({ showDetailsModal, setShowDetailsModal, currentRequest, onDel
           },
         },
       }));
-
       showToast("✅ Diagnóstico guardado correctamente", "success");
       setShowModelInput(false);
-
+      // Recargar datos de la orden para actualizar costoTotal y otros campos
+      await getCurrentRequest(allDataOfCurrentRequest?.data?.id);
+      // Ahora SÓLO generar el PDF, el WhatsApp se activa después de actualizar el detalle tras el PDF
+      setIsGeneratingPDF(true);
     } catch (error) {
       console.error("[Diagnóstico] Error:", error);
       showToast("❌ " + (error.message || "Error al guardar el diagnóstico"), "danger");
@@ -479,6 +541,8 @@ const OsDetail = ({ showDetailsModal, setShowDetailsModal, currentRequest, onDel
         setNuevoPago({ monto: '', metodo_pago: '', fecha_pago: '' });
         showToast("Pago registrado correctamente", "success");
         await getCurrentRequest(ordenId);
+        // Cambiar automáticamente a entregado
+        await handleStatusChange("entregado");
       } else {
         showToast(data.error || data.message || "Error al registrar el pago", "danger");
       }
@@ -560,6 +624,12 @@ const OsDetail = ({ showDetailsModal, setShowDetailsModal, currentRequest, onDel
         setDniTecnico(`${parsedUser.name} ${parsedUser.lastname}`);
       }
       getCurrentRequest(currentRequest?.id);
+      // Inicializar edición de cliente
+      setIsEditingCliente(false);
+      setIsSavingCliente(false);
+      setEditedNombre("");
+      setEditedApellido("");
+      setEditedTelefono("");
     } else {
       // Resetear estados cuando se cierra el modal
       setAllDataOfCurrentRequest(null);
@@ -575,10 +645,11 @@ const OsDetail = ({ showDetailsModal, setShowDetailsModal, currentRequest, onDel
     }
   }, [showDetailsModal, currentRequest]);
 
+  // useEffect para obtener el historial automáticamente cuando el QR está vinculado
   useEffect(() => {
     if (allDataOfCurrentRequest?.data?.dispositivo?.qr_scan) {
       fetch(
-        `https://servidorserviciotecnicolima-production.up.railway.app/dispositivos/validar-qr?qr=${encodeURIComponent(
+        `${BASE_URL}/dispositivos/validar-qr?qr=${encodeURIComponent(
           allDataOfCurrentRequest.data.dispositivo.qr_scan
         )}`
       )
@@ -612,12 +683,16 @@ const OsDetail = ({ showDetailsModal, setShowDetailsModal, currentRequest, onDel
               },
             }));
             setMachineHistory(newEntries);
+          } else {
+            setMachineHistory([]);
           }
         })
         .catch((error) => {
           console.error("Error fetching machine history:", error);
           showToast("Error al obtener historial de la máquina.", "danger");
         });
+    } else {
+      setMachineHistory(null);
     }
   }, [allDataOfCurrentRequest, dniTecnico, showToast]);
 
@@ -697,32 +772,7 @@ const OsDetail = ({ showDetailsModal, setShowDetailsModal, currentRequest, onDel
               </div>
               {/* Mostrar ambos técnicos si existen */}
               <div className="has-text-white is-size-7-mobile" style={{ fontWeight: 500, marginTop: 4, marginLeft: 2, display: 'flex', gap: window.innerWidth < 769 ? 6 : 12 }}>
-                {/* DEBUG: Mostrar qué datos llegan para técnico_recibio */}
-                {(() => {
-                  const disp = allDataOfCurrentRequest.data.dispositivo;
-                  // LOG: Mostrar todo el objeto dispositivo
-                  console.log('[DEBUG dispositivo]:', disp);
-                  // Prefer object, fallback to ID
-                  const tecnicoRecibioObj = disp?.tecnicoRecibio || disp?.tecnico_recibio;
-                  // LOG: Mostrar el valor de tecnicoRecibioObj
-                  console.log('[DEBUG tecnicoRecibioObj]:', tecnicoRecibioObj);
-                  if (tecnicoRecibioObj && typeof tecnicoRecibioObj === 'object' && (tecnicoRecibioObj.nombre || tecnicoRecibioObj.apellido)) {
-                    return (
-                      <span style={{ marginRight: window.innerWidth < 769 ? 4 : 8, background: '#f5e960', color: '#23263A', borderRadius: 5, padding: window.innerWidth < 769 ? '1.5px 5px' : '2px 8px', fontWeight: 700, display: 'inline-block', fontSize: window.innerWidth < 769 ? '0.78em' : '1em', minWidth: 0 }}>
-                        <b>Recibió:</b> {`${tecnicoRecibioObj.nombre || ''} ${tecnicoRecibioObj.apellido || ''}`.trim()}
-                      </span>
-                    );
-                  } else if (typeof tecnicoRecibioObj === 'number' || typeof tecnicoRecibioObj === 'string') {
-                    return (
-                      <span style={{ marginRight: window.innerWidth < 769 ? 4 : 8, background: '#f5e960', color: '#23263A', borderRadius: 5, padding: window.innerWidth < 769 ? '1.5px 5px' : '2px 8px', fontWeight: 700, display: 'inline-block', fontSize: window.innerWidth < 769 ? '0.78em' : '1em', minWidth: 0 }}>
-                        <b>Recibió:</b> ID: {tecnicoRecibioObj}
-                      </span>
-                    );
-                  }
-                  // LOG: Si no hay técnico_recibio
-                  console.log('[DEBUG]: No se encontró técnico_recibio para mostrar');
-                  return null;
-                })()}
+                {renderTecnicoRecibio()}
                 {/* Diagnóstico y Entregó, igual que antes */}
                 {allDataOfCurrentRequest.data.dispositivo?.tecnico && (
                   <span style={{ marginRight: window.innerWidth < 769 ? 4 : 8, background: '#60b0f5', color: '#fff', borderRadius: 5, padding: window.innerWidth < 769 ? '1.5px 5px' : '2px 8px', fontWeight: 700, display: 'inline-block', fontSize: window.innerWidth < 769 ? '0.78em' : '1em', minWidth: 0 }}>
@@ -735,7 +785,6 @@ const OsDetail = ({ showDetailsModal, setShowDetailsModal, currentRequest, onDel
                   </span>
                 )}
               </div>
-
               {/* Teléfono y WhatsApp del cliente */}
               {allDataOfCurrentRequest?.data?.dispositivo?.cliente?.telefono && (
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.7em', marginTop: 10, background: 'rgba(255,255,255,0.13)', borderRadius: 8, padding: '6px 14px', boxShadow: '0 2px 8px rgba(91,134,229,0.09)' }}>
@@ -759,13 +808,8 @@ const OsDetail = ({ showDetailsModal, setShowDetailsModal, currentRequest, onDel
                   >
                     💬
                   </a>
-                  <span style={{ color: '#23263A', fontWeight: 600, fontSize: '1em', letterSpacing: '0.5px', marginLeft: 6, background: '#fff', borderRadius: 5, padding: '2px 10px', boxShadow: '0 1px 4px #b6d0f733' }}>{allDataOfCurrentRequest.data.dispositivo.cliente.telefono}</span>
-                  {/* Eliminado badge y botón de tipo_orden porque el campo fue removido */}
                 </div>
               )}
-
-
-
             </header>
 
             {toastMessage.show && (
@@ -800,6 +844,144 @@ const OsDetail = ({ showDetailsModal, setShowDetailsModal, currentRequest, onDel
               <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
                 {activeTab === 'details' && (
                   <>
+                    {/* Sección editable del cliente */}
+                    <div className="box" style={{ marginBottom: 10, background: '#fffbe6', border: '1.5px solid #ffe066', borderRadius: 8 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                        {isEditingCliente ? (
+                          <>
+                            <div style={{ position: 'relative', width: 250 }}>
+                              <input
+                                className="input is-small"
+                                type="text"
+                                value={editedNombreApellido}
+                                onChange={e => setEditedNombreApellido(e.target.value)}
+                                placeholder="Nombre y Apellido"
+                                style={{ width: '100%' }}
+                                disabled={isSavingCliente}
+                              />
+                              {editedNombreApellido && (
+                                <span style={{
+                                  position: 'absolute',
+                                  left: 0,
+                                  top: 'calc(100% + 4px)',
+                                  background: '#f5e960',
+                                  color: '#23263A',
+                                  borderRadius: 5,
+                                  padding: '2px 8px',
+                                  fontWeight: 500,
+                                  fontSize: 13,
+                                  boxShadow: '0 1px 4px #f5e96033',
+                                  marginLeft: 0,
+                                  zIndex: 2,
+                                  minWidth: '120px',
+                                  whiteSpace: 'nowrap'
+                                }}>
+                                  {editedNombreApellido.trim()}
+                                </span>
+                              )}
+                            </div>
+                            <div style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
+                              <input
+                                className="input is-small"
+                                type="text"
+                                value={editedTelefono}
+                                onChange={e => setEditedTelefono(e.target.value)}
+                                placeholder="Teléfono"
+                                style={{ maxWidth: 120 }}
+                                disabled={isSavingCliente}
+                              />
+                              {editedTelefono && (
+                                <span style={{
+                                  position: 'absolute',
+                                  left: 0,
+                                  top: 'calc(100% + 4px)',
+                                  background: '#f5e960',
+                                  color: '#23263A',
+                                  borderRadius: 5,
+                                  padding: '2px 8px',
+                                  fontWeight: 500,
+                                  fontSize: 13,
+                                  boxShadow: '0 1px 4px #f5e96033',
+                                  marginLeft: 0,
+                                  zIndex: 2,
+                                  minWidth: '120px',
+                                  whiteSpace: 'nowrap'
+                                }}>
+                                  {editedTelefono}
+                                </span>
+                              )}
+                            </div>
+                            <button
+                              className="button is-success is-small"
+                              style={{ fontWeight: 600 }}
+                              disabled={isSavingCliente || !editedNombreApellido.trim() || !editedTelefono.trim()}
+                              onClick={async () => {
+                                setIsSavingCliente(true);
+                                try {
+                                  const clienteId = allDataOfCurrentRequest.data.dispositivo.cliente.id;
+                                  // Separar nombre y apellido como en RepairRequestForm
+                                  const nameParts = (editedNombreApellido || '').trim().split(' ');
+                                  const nombre = nameParts[0] || '';
+                                  const apellido = nameParts.slice(1).join(' ') || '';
+                                  const response = await fetch(`${BASE_URL}/api/clientes/${clienteId}`, {
+                                    method: 'PUT',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({ nombre: nombre.trim(), apellido: apellido.trim(), telefono: editedTelefono.trim() })
+                                  });
+                                  const data = await response.json();
+                                  if (response.ok) {
+                                    showToast('Datos actualizados correctamente', 'success');
+                                    setIsEditingCliente(false);
+                                    setIsSavingCliente(false);
+                                    setEditedNombreApellido("");
+                                    setEditedTelefono("");
+                                    // Refrescar datos
+                                    await getCurrentRequest(allDataOfCurrentRequest.data.id);
+                                  } else {
+                                    showToast(data.message || 'Error al actualizar el cliente', 'danger');
+                                    setIsSavingCliente(false);
+                                  }
+                                } catch (error) {
+                                  showToast('Error al actualizar el cliente', 'danger');
+                                  setIsSavingCliente(false);
+                                }
+                              }}
+                            >Guardar</button>
+                            <button
+                              className="button is-light is-small"
+                              style={{ fontWeight: 600 }}
+                              disabled={isSavingCliente}
+                              onClick={() => {
+                                setIsEditingCliente(false);
+                                setEditedNombreApellido("");
+                                setEditedTelefono("");
+                              }}
+                            >Cancelar</button>
+                          </>
+                        ) : (
+                          <>
+                            <span style={{ fontWeight: 600, fontSize: 15, color: '#222', letterSpacing: 0.1 }}>
+                              {allDataOfCurrentRequest.data.dispositivo.cliente.nombre} {allDataOfCurrentRequest.data.dispositivo.cliente.apellido}
+                            </span>
+                            <span style={{ fontWeight: 600, fontSize: 14, color: '#444', marginLeft: 12 }}>
+                              {allDataOfCurrentRequest.data.dispositivo.cliente.telefono}
+                            </span>
+                            <button
+                              className="button is-warning is-small"
+                              style={{ fontWeight: 600, marginLeft: 10 }}
+                              onClick={() => {
+                                setIsEditingCliente(true);
+                                setEditedNombreApellido(
+                                  ((allDataOfCurrentRequest.data.dispositivo.cliente.nombre || "") +
+                                    (allDataOfCurrentRequest.data.dispositivo.cliente.apellido ? " " + allDataOfCurrentRequest.data.dispositivo.cliente.apellido : "")).trim()
+                                );
+                                setEditedTelefono(allDataOfCurrentRequest.data.dispositivo.cliente.telefono || "");
+                              }}
+                            >Editar</button>
+                          </>
+                        )}
+                      </div>
+                    </div>
                     <div className="columns is-mobile is-multiline mb-2" style={{ marginLeft: 0, marginRight: 0 }}>
                       <div className="column is-full p-1">
                         <ClientInfoCard 
@@ -868,7 +1050,6 @@ const OsDetail = ({ showDetailsModal, setShowDetailsModal, currentRequest, onDel
                             <option value="Plin">Plin</option>
                             <option value="Transferencia">Transferencia</option>
                             <option value="Tarjeta">Tarjeta</option>
-                            <option value="Otro">Otro</option>
                           </select>
                           <div style={{ position: 'relative', maxWidth: 180, marginRight: 8 }}>
                             <input
@@ -904,9 +1085,7 @@ const OsDetail = ({ showDetailsModal, setShowDetailsModal, currentRequest, onDel
                             {isSavingPago ? 'Guardando...' : 'Registrar pago'}
                           </button>
                         </form>
-                        <div className="mb-2">
-                          <DeliverySlider handleStatusChange={handleStatusChange} disabled={typeof pagos === 'undefined' || pagos.length === 0} />
-                        </div>
+                        {/* DeliverySlider eliminado por requerimiento, ya no aparece nunca */}
                       </div>
                     )}
                     <div className="columns is-mobile mb-2" style={{ marginLeft: 0, marginRight: 0 }}>
@@ -1032,10 +1211,12 @@ const OsDetail = ({ showDetailsModal, setShowDetailsModal, currentRequest, onDel
                   zIndex: 10000,
                 }}
               >
+                {/* Ahora siempre se puede cambiar el estado, incluso si está entregado */}
                 <StatusUpdateCard 
                   currentStatus={allDataOfCurrentRequest.data.estado}
                   handleStatusChange={handleStatusChange}
                   onClose={() => setShowStatusButtons(false)}
+                  allowAllStatuses={true}
                 />
               </div>
             )}

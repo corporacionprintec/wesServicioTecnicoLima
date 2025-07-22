@@ -3,6 +3,7 @@ import React from "react";
 const statusLabels = {
   pendiente: 'Pendiente',
   en_proceso: 'Diagnosticado',
+  venta_rapida: 'Venta Rápida',
   entregado: 'Entregado',
   cancelado: 'En Abandono',
 };
@@ -37,7 +38,6 @@ const StatusUpdateCard = ({
             type="button"
             className={`button${currentStatus === "pendiente" ? " is-warning" : " is-light"}`}
             onClick={() => handleStatusChange("pendiente")}
-            disabled={currentStatus === "entregado"}
           >
             Pendiente
           </button>
@@ -45,24 +45,27 @@ const StatusUpdateCard = ({
             type="button"
             className={`button${currentStatus === "en_proceso" ? " is-info" : " is-light"}`}
             onClick={() => handleStatusChange("en_proceso")}
-            disabled={currentStatus === "entregado"}
           >
             Diagnosticado
           </button>
-          {/* El botón de Entregado solo se muestra si el estado actual NO es entregado y NO se permite cambiar a entregado desde aquí */}
-          {/* <button
+          <button
+            type="button"
+            className={`button${currentStatus === "venta_rapida" ? " is-primary" : " is-light"}`}
+            onClick={() => handleStatusChange("venta_rapida")}
+          >
+            {statusLabels["venta_rapida"]}
+          </button>
+          <button
             type="button"
             className={`button${currentStatus === "entregado" ? " is-success" : " is-light"}`}
             onClick={() => handleStatusChange("entregado")}
-            disabled={true}
           >
             Entregado
-          </button> */}
+          </button>
           <button
             type="button"
             className={`button${currentStatus === "cancelado" ? " is-danger" : " is-light"}`}
             onClick={() => handleStatusChange("cancelado")}
-            disabled={currentStatus === "entregado"}
           >
             En Abandono
           </button>

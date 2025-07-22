@@ -457,7 +457,7 @@ function EmployeeDashboard() {
       {/* Navbar */}
       <div className="ed-navbar">
         <div className="ed-navbar-left">
-          <span className="ed-navbar-logo">🛠️ PRINTEC Dashboard</span>
+          <span className="ed-navbar-logo">🛠️ PRINTEC LIMA</span>
         </div>
         <div className="ed-navbar-center">
           <span className="ed-navbar-user">👨‍🔧 {technicianInfo.nombre.split(' ')[0]} {technicianInfo.apellido.split(' ')[0]}</span>
