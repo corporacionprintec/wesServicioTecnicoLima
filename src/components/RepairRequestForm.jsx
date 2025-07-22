@@ -15,6 +15,7 @@ import SubmitButton from './common/SubmitButton';
 import QrVinculador from './common/QrVinculador';
 import ErrorBoundary from './common/ErrorBoundary';
 
+
 const RepairRequestForm = ({ prefillData = {} }) => {
 
   // Estado para notificaciones fijas en la parte superior
@@ -22,16 +23,22 @@ const RepairRequestForm = ({ prefillData = {} }) => {
   const notificationTimerRef = useRef(null);
   
   const showNotification = (message, type = 'danger') => {
-    setNotification({ message, type });
-    // Limpiar temporizador anterior si existe
+    // Asegurarnos de que la notificación anterior se limpie
     if (notificationTimerRef.current) {
       clearTimeout(notificationTimerRef.current);
     }
+    
+    // Mostrar la nueva notificación
+    setNotification({ message, type });
+    
+    // Para notificaciones importantes (QR), dar más tiempo
+    const timeout = message.includes('CLIENTE') ? 8000 : 5000;
+    
     // Guardar referencia al nuevo temporizador
     notificationTimerRef.current = setTimeout(() => {
       setNotification(null);
       notificationTimerRef.current = null;
-    }, 5000);
+    }, timeout);
   };
   const [formData, setFormData] = useState({
     nombreApellido: '',
@@ -40,10 +47,11 @@ const RepairRequestForm = ({ prefillData = {} }) => {
     audioFile: null,
     fotos: [],
     qr_scan: '',
-    tipoServicio: '', // Valor vacío inicialmente
+    tipoServicio: '',
     direccion: '',
     fechaHoraServicio: '',
-    tecnico_recibio: null // ID del técnico que recibe
+    tecnico_recibio: null,
+    lugarAtencion: 'taller' // Valor por defecto: 'taller' o 'tienda'
   });
 
   // Eliminado: fechaHoraModo y setFechaHoraModo (no se utilizan)
@@ -148,8 +156,15 @@ const RepairRequestForm = ({ prefillData = {} }) => {
     setFormData(prevData => ({ ...prevData, [name]: value }));
   };
 
+  const handleTelefonoChange = (e) => {
+    const { name, value } = e.target;
+    // Guardar en localStorage y actualizar el estado del formulario
+    localStorage.setItem('telefonoTemporal', value);
+    setFormData(prevData => ({ ...prevData, [name]: value }));
+  };
+
   // 1. Limitar tamaño máximo de imagen y duración de audio
-  const MAX_IMAGE_SIZE_MB = 0.5; // Ahora 500KB por imagen para máxima compatibilidad
+  const MAX_IMAGE_SIZE_MB = 5; // Ahora 5MB por imagen para máxima compatibilidad (igual que el backend)
   const MAX_AUDIO_DURATION_SEC = 15; // 15 segundos de audio
 
   const handleFileChange = (e) => {
@@ -162,7 +177,7 @@ const RepairRequestForm = ({ prefillData = {} }) => {
     // Validar tamaño de archivos
     for (const file of files) {
       if (file.size > MAX_IMAGE_SIZE_MB * 1024 * 1024) {
-        showNotification(`La imagen "${file.name}" supera el tamaño máximo de ${MAX_IMAGE_SIZE_MB * 1024}KB.`, 'danger');
+        showNotification(`La imagen "${file.name}" supera el tamaño máximo de ${MAX_IMAGE_SIZE_MB}MB (5MB).`, 'danger');
         return;
       }
     }
@@ -207,7 +222,7 @@ const RepairRequestForm = ({ prefillData = {} }) => {
           const ctx = canvas.getContext('2d');
           ctx.drawImage(img, 0, 0, width, height);
           
-          // Convertir a Blob con calidad reducida (40%)
+          // Convertir a Blob con calidad reducida (70%)
           canvas.toBlob((blob) => {
             if (blob) {
               const optimizedFile = new File([blob], file.name, {
@@ -226,7 +241,7 @@ const RepairRequestForm = ({ prefillData = {} }) => {
                 fotos: [...prevData.fotos, ...optimizedImages]
               }));
             }
-          }, 'image/jpeg', 0.4); // Calidad del 40% para asegurar <500KB
+          }, 'image/jpeg', 0.7); // Calidad del 70% para asegurar <5MB
         };
         img.src = event.target.result;
       };
@@ -595,7 +610,6 @@ const RepairRequestForm = ({ prefillData = {} }) => {
             const labelWidth = pdf.getTextWidth(`${labelText}: `);
             const maxWidth = pageWidth - margin - labelWidth - 10;
             
-            // Dividir texto largo en líneas si es necesario
             const lines = pdf.splitTextToSize(valueText, maxWidth);
             
             if (lines.length > 1) {
@@ -891,10 +905,12 @@ const RepairRequestForm = ({ prefillData = {} }) => {
   const [tecnicoRecibioVinculacion, setTecnicoRecibioVinculacion] = useState('');
   // Nuevo estado para guardar el ID del técnico que vinculó el QR
   const [tecnicoRecibioVinculacionId, setTecnicoRecibioVinculacionId] = useState(null);
+  // Nuevo estado para guardar info de cliente registrado tras vincular QR
+  const [clienteRegistradoInfo, setClienteRegistradoInfo] = useState(null);
 
   const showToast = (msg, variant) => showNotification(msg, variant);
   // Cambia handleVincularQR para guardar la información del técnico y QR
-  const handleVincularQR = () => {
+  const handleVincularQR = async () => {
     // Obtener información del técnico del localStorage
     const storedUser = localStorage.getItem('currentUser');
     let tecnicoRecibioId = null;
@@ -908,7 +924,20 @@ const RepairRequestForm = ({ prefillData = {} }) => {
         console.error('Error al obtener datos del técnico:', e);
       }
     }
-    console.log('[DEBUG] handleVincularQR - tecnicoRecibioId:', tecnicoRecibioId, 'tecnicoNombre:', tecnicoNombre);
+    // Validar el QR con el servidor para saber si es cliente registrado
+    let infoCliente = null;
+    if (qrResult?.data) {
+      const validacionServidor = await validarQRConServidor(qrResult.data);
+      if (validacionServidor?.valid && validacionServidor?.data) {
+        // Si el backend retorna info de cliente, úsala
+        infoCliente = validacionServidor.data.cliente
+          ? { registrado: true, nombre: validacionServidor.data.cliente.nombre }
+          : { registrado: false };
+      } else {
+        infoCliente = { registrado: false };
+      }
+    }
+    setClienteRegistradoInfo(infoCliente); // Guardar info para mostrar alerta
     // Actualizar el estado del formulario con el QR y tipo de servicio
     setFormData(prev => ({
       ...prev,
@@ -921,39 +950,80 @@ const RepairRequestForm = ({ prefillData = {} }) => {
     // Guardar el nombre para mostrar en la UI
     setTecnicoRecibioVinculacion(tecnicoNombre);
     setShowQrModal(false);
-    showToast('QR y lugar de atención guardados en el formulario. Se vincularán al enviar la solicitud.', 'info');
   };
 
-  // Obtener nombre del técnico autenticado para mostrar en la vinculación QR
-  useEffect(() => {
-    const storedUser = localStorage.getItem('currentUser');
-    if (storedUser) {
-      try {
-        const parsedUser = JSON.parse(storedUser);
-        setDniTecnico(`${parsedUser.name || ''} ${parsedUser.lastname || ''}`.trim());
-      } catch (e) {
-        setDniTecnico('');
+  // Función para validar QR con el servidor
+  const validarQRConServidor = async (qrCode) => {
+    try {
+      console.log('[DEBUG] Validando QR con servidor:', qrCode);
+      const response = await fetch(`https://servidorserviciotecnicolima-production.up.railway.app/api/dispositivos/validar-qr?qr=${encodeURIComponent(qrCode)}`, {
+        method: 'GET',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+          'Origin': window.location.origin
+        },
+        mode: 'cors',
+        credentials: 'include'
+      });
+      
+      if (!response.ok) {
+        throw new Error(`Error HTTP: ${response.status}`);
       }
+      
+      const data = await response.json();
+      console.log('[DEBUG] Respuesta del servidor:', data);
+      return data;
+    } catch (error) {
+      console.error('[ERROR] Error al validar QR:', error);
+      showNotification('Error al validar el QR. Verifica tu conexión o inténtalo nuevamente.', 'error');
+      return null;
     }
-  }, []);
-
-  // Guardar el teléfono en localStorage cada vez que el usuario lo escribe
-  const handleTelefonoChange = (e) => {
-    handleChange(e);
-    localStorage.setItem('telefonoTemporal', e.target.value);
   };
 
-  // Cuando se valida el QR, guardar el dispositivoId si está disponible en la respuesta
+  // Manejar la respuesta del QR y autocompletar datos
   useEffect(() => {
+    const procesarQR = async () => {
+      if (qrResult?.data) {
+        const validacionServidor = await validarQRConServidor(qrResult.data);
+        if (validacionServidor?.valid && validacionServidor?.data) {
+          const dispositivos = Array.isArray(validacionServidor.data) 
+            ? validacionServidor.data 
+            : [validacionServidor.data];
+          
+          if (dispositivos.length > 0) {
+            const dispositivo = dispositivos[0];
+            
+            if (dispositivo.nombre && dispositivo.apellido) {
+              setFormData(prev => {
+                const newData = {
+                  ...prev,
+                  nombreApellido: `${dispositivo.nombre} ${dispositivo.apellido}`.trim(),
+                  telefono: dispositivo.telefono || '',
+                  qr_scan: qrResult.data
+                };
+                return newData;
+              });
+              setClienteRegistradoInfo({ registrado: true, nombre: `${dispositivo.nombre} ${dispositivo.apellido}`.trim() });
+              showNotification('📱 CLIENTE YA REGISTRADO\nLos datos se han autocompletado. Por favor seleccione el lugar de atención.', 'success');
+            } else {
+              setFormData(prev => ({
+                ...prev,
+                qr_scan: qrResult.data
+              }));
+              setClienteRegistradoInfo({ registrado: false });
+              showNotification('🆕 CLIENTE NUEVO\nPor favor complete los datos del cliente y seleccione el lugar de atención.', 'info');
+            }
+          }
+        }
+      }
+    };
     if (qrResult) {
-      console.log('qrResult:', qrResult);
-    }
-    if (qrResult && qrResult.data && qrResult.deviceId) {
-      setDispositivoId(qrResult.deviceId);
+      procesarQR();
     }
   }, [qrResult]);
 
-  // Add this function before the return statement
+  // Definir la función para cerrar el modal QR
   const handleCloseQrModal = () => setShowQrModal(false);
 
   // Wrap the main return in ErrorBoundary
@@ -1012,6 +1082,7 @@ const RepairRequestForm = ({ prefillData = {} }) => {
                             placeholder="Ej: Juan Pérez"
                             onChange={handleChange}
                             required
+                            disabled={!!(qrResult && qrResult.deviceId)}
                           />
                         </div>
                         <div>
@@ -1029,6 +1100,7 @@ const RepairRequestForm = ({ prefillData = {} }) => {
                             placeholder="Ej: +51 123456789"
                             required
                             ref={telefonoInputRef}
+                            disabled={!!(qrResult && qrResult.deviceId)}
                           />
                           {/* Botón para descargar el PDF si está generado */}
                           {(pdfGenerated && pdfInstance) && (
@@ -1308,6 +1380,7 @@ const RepairRequestForm = ({ prefillData = {} }) => {
                       Recibió: {tecnicoRecibioVinculacion.toUpperCase()}
                     </div>
                   )}
+
                   {/* Responsive styles for button row */}
                   <style>{`
                     @media (max-width: 600px) {
@@ -1357,6 +1430,7 @@ const RepairRequestForm = ({ prefillData = {} }) => {
                   setShowModelInput={setShowModelInput}
                   setShowLocationModal={setShowLocationModal}
                   autoStartCamera={showQrModal}
+                  clienteRegistradoInfo={clienteRegistradoInfo}
                 />
               </section>
             </div>

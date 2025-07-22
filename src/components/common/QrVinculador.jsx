@@ -21,7 +21,8 @@ const QrVinculador = ({
   setShowHistory,
   setShowModelInput,
   setShowLocationModal,
-  autoStartCamera = false
+  autoStartCamera = false,
+  clienteRegistradoInfo
 }) => {
   const videoRef = useRef(null);
   const qrScannerRef = useRef(null);
@@ -44,11 +45,18 @@ const QrVinculador = ({
     // eslint-disable-next-line
   }, [autoStartCamera]);
 
-  // Listen for toast messages and show them in the modal as feedback
+  // Única fuente de verdad para los mensajes de feedback
   useEffect(() => {
-    // Listen for global toasts if needed, or clear feedback on new scan
-    setFeedbackMessage("");
-  }, [qrResult, selectedTipoServicio]);
+    if (clienteRegistradoInfo) {
+      if (clienteRegistradoInfo.registrado) {
+        setFeedbackMessage(`👤 CLIENTE YA REGISTRADO: ${clienteRegistradoInfo.nombre || ''}\nPor favor seleccione el lugar de atención.`);
+      } else {
+        setFeedbackMessage("🆕 CLIENTE NUEVO\nPor favor seleccione el lugar de atención.");
+      }
+    } else {
+      setFeedbackMessage("");
+    }
+  }, [clienteRegistradoInfo]);
 
   const handleScanQR = () => {
     if (!hasCamera) {
@@ -61,22 +69,17 @@ const QrVinculador = ({
         (result) => {
           // Extraer deviceId del backend tras validación
           fetch(
-            `https://servidorserviciotecnico-production.up.railway.app/dispositivos/validar-qr?qr=${encodeURIComponent(result.data)}`
+            `https://servidorserviciotecnicolima-production.up.railway.app/dispositivos/validar-qr?qr=${encodeURIComponent(result.data)}`
           )
             .then((response) => response.json())
             .then((data) => {
               if (data.valid && Array.isArray(data.data) && data.data.length > 0) {
-                // Extraer el ID del dispositivo
                 const deviceId = data.data[0]?.id;
                 setQrResult({ ...result, deviceId });
-                // Mapeo del historial
                 const newEntries = data.data.map((item, index) => ({
                   id: index + 1,
                   fecha: new Date().toLocaleDateString(),
-                  descripcion:
-                    item.problemas_descritos && item.problemas_descritos.length > 0
-                      ? item.problemas_descritos[0]
-                      : "Sin descripción",
+                  descripcion: item.problemas_descritos?.[0] || "Sin descripción",
                   cliente: {
                     nombre: item.nombre || "",
                     apellido: item.apellido || "",
@@ -86,30 +89,24 @@ const QrVinculador = ({
                     tipo_dispositivo: item.tipo_dispositivo || "",
                     marca: item.marca || "",
                     modelo: item.modelo || "",
-                    diagnostico: item.diagnostico && item.diagnostico !== "" ? item.diagnostico : "Sin diagnóstico",
-                    imagenen_diagnostico:
-                      item.imagenen_diagnostico && item.imagenen_diagnostico !== ""
-                        ? item.imagenen_diagnostico
-                        : "",
+                    diagnostico: item.diagnostico || "Sin diagnóstico",
+                    imagenen_diagnostico: item.imagenen_diagnostico || "",
                     dni_tecnico: dniTecnico,
                   },
                 }));
 
-                showToast(`QR validado: se encontraron ${newEntries.length} registros.`, "success");
                 setMachineHistory(newEntries);
-                // Seleccionar automáticamente el primer tipo de servicio y habilitar el botón
                 setSelectedTipoServicio('En Taller M.');
                 setCanVincular(true);
               } else {
                 setQrResult(result); // fallback: no deviceId
-                showToast("QR no registrado o formato incorrecto.", "warning");
                 setCanVincular(false);
               }
             })
             .catch((error) => {
               setQrResult(result); // fallback: no deviceId
               console.error("Error al validar el QR:", error);
-              showToast("Error al validar el QR", "danger");
+              setFeedbackMessage("❌ Error al validar el QR. Por favor intente nuevamente.");
             });
           setSelectedTipoServicio('');
           setCanVincular(false);
@@ -142,6 +139,22 @@ const QrVinculador = ({
   return (
     <div className="qrs-card" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%' }}>
       <div className="qrs-card-body" style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+        {feedbackMessage && (
+          <div style={{ 
+            width: '100%',
+            padding: '12px',
+            marginBottom: '16px',
+            borderRadius: '8px',
+            backgroundColor: clienteRegistradoInfo?.registrado ? 'rgba(46, 204, 113, 0.15)' : 'rgba(52, 152, 219, 0.15)',
+            border: `1px solid ${clienteRegistradoInfo?.registrado ? '#27ae60' : '#3498db'}`,
+            color: clienteRegistradoInfo?.registrado ? '#27ae60' : '#2980b9',
+            fontWeight: '500',
+            whiteSpace: 'pre-line',
+            textAlign: 'center'
+          }}>
+            {feedbackMessage}
+          </div>
+        )}
         {allDataOfCurrentRequest?.data?.dispositivo?.qr_scan ? (
           <>
             <p style={{ width: '100%', marginBottom: 12 }}>
@@ -259,12 +272,6 @@ const QrVinculador = ({
                         'Vincular QR'
                       )}
                     </button>
-                    {/* Feedback message below the button */}
-                    {feedbackMessage && (
-                      <div style={{ marginTop: 10, color: feedbackMessage.startsWith('✅') ? '#1d784e' : '#b71c1c', fontWeight: 500 }}>
-                        {feedbackMessage}
-                      </div>
-                    )}
                     <button
                       className="qrs-btn qrs-btn-outline"
                       onClick={() => setShowHistory(!showHistory)}
