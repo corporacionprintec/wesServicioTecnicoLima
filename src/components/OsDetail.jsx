@@ -760,57 +760,7 @@ const OsDetail = ({ showDetailsModal, setShowDetailsModal, currentRequest, onDel
                     💬
                   </a>
                   <span style={{ color: '#23263A', fontWeight: 600, fontSize: '1em', letterSpacing: '0.5px', marginLeft: 6, background: '#fff', borderRadius: 5, padding: '2px 10px', boxShadow: '0 1px 4px #b6d0f733' }}>{allDataOfCurrentRequest.data.dispositivo.cliente.telefono}</span>
-                  {/* Badge de vendido si tipo_orden es venta */}
-                  {allDataOfCurrentRequest.data.tipo_orden === 'venta' && (
-                    <span style={{
-                      marginLeft: 10,
-                      background: '#23d160', // Bulma green
-                      color: '#fff',
-                      borderRadius: 6,
-                      padding: '2px 12px',
-                      fontWeight: 800,
-                      fontSize: window.innerWidth < 769 ? '0.95em' : '1.08em',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: 6,
-                      boxShadow: '0 1px 4px #23d16033',
-                      letterSpacing: '1px',
-                      textTransform: 'uppercase',
-                    }}>
-                      <span style={{ fontSize: '1.2em', marginRight: 2 }}>➔</span> VENTA
-                    </span>
-                  )}
-                  {/* Botón para cambiar a venta */}
-                  {allDataOfCurrentRequest.data.tipo_orden !== 'venta' && (
-                    <button
-                      className="button is-warning is-light is-small"
-                      style={{ marginLeft: 8, fontWeight: 700, fontSize: '0.95em', borderRadius: 6, border: '1px solid #f7c873', color: '#b26a00', background: '#fffbe6', display: 'flex', alignItems: 'center', gap: 4 }}
-                      disabled={isUpdating}
-                      onClick={async () => {
-                        try {
-                          setIsUpdating(true);
-                          const response = await fetch(`${BASE_URL}/ordenes/${allDataOfCurrentRequest.data.id}/tipo-orden`, {
-                            method: 'PUT',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ tipo_orden: 'venta' })
-                          });
-                          const data = await response.json();
-                          if (response.ok) {
-                            setAllDataOfCurrentRequest(prev => ({ ...prev, data: { ...prev.data, tipo_orden: 'venta' } }));
-                            showToast('Tipo de orden actualizado a VENTA', 'success');
-                          } else {
-                            showToast(data.message || 'Error al actualizar tipo de orden', 'danger');
-                          }
-                        } catch (err) {
-                          showToast('Error de red al actualizar tipo de orden', 'danger');
-                        } finally {
-                          setIsUpdating(false);
-                        }
-                      }}
-                    >
-                      {isUpdating ? 'Actualizando...' : '¿Venta?'}
-                    </button>
-                  )}
+                  {/* Eliminado badge y botón de tipo_orden porque el campo fue removido */}
                 </div>
               )}
 

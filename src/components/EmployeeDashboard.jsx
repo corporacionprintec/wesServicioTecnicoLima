@@ -4,9 +4,13 @@ import { useNavigate } from 'react-router-dom';
 import OsDetail from './OsDetail';
 import { useAuth } from '../contexts/AuthContext';
 import QrScanner from 'qr-scanner';
+
 import QrScannerComponent from './EmployeeDashboard/QrScannerComponent';
+
 import NovedadesToast from './common/NovedadesToast';
+
 import PrintecGPTChat from './PrintecGPTChat';
+import GastoFloatingWidget from './EmployeeDashboard/GastoFloatingWidget';
 
 const API_URL = "https://servidorserviciotecnicolima-production.up.railway.app/ordenes";
 const NOVEDADES_VERSION = "2.0.0"; // Cambia esto cuando haya nuevas novedades
@@ -41,7 +45,7 @@ function isSameDayUTC(dateA, dateB) {
   );
 }
 
-function TechnicianDashboard() {
+function EmployeeDashboard() {
   const navigate = useNavigate();
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   useEffect(() => {
@@ -74,6 +78,7 @@ function TechnicianDashboard() {
   const [showUpdateMsg, setShowUpdateMsg] = useState(false);
   const [dateFilterType, setDateFilterType] = useState('');
   const [dateFilterValue, setDateFilterValue] = useState('');
+  const [scannedQrValue, setScannedQrValue] = useState('');
   useEffect(() => { setPage(1); }, [searchQRCode, searchPhone, filterStatus, showEliminados, filterTipoServicio]);
   useEffect(() => {
     const storedDni = localStorage.getItem('dni');
@@ -138,7 +143,32 @@ function TechnicianDashboard() {
     } catch (error) { alert("No se pudo detectar un código QR en la imagen seleccionada."); }
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
-  const handleQrResult = (qrData) => { if (qrData) setSearchQRCode(qrData); };
+  // Cuando se escanea QR, buscar la orden y mostrar modal
+  const normalize = str => (str || '').toString().replace(/\s+/g, '').toLowerCase();
+  const handleQrResult = (qrData) => {
+    if (!qrData || typeof qrData !== 'string' || qrData.trim() === '') {
+      // QR vacío o ilegible, no hacer nada
+      return;
+    }
+    // Buscar todas las órdenes por QR (ignora espacios y mayúsculas)
+    const qrNorm = normalize(qrData);
+    const ordenesQR = ordenes.filter(o => {
+      const qrOrden = normalize(o.dispositivo?.qr_scan);
+      return qrOrden === qrNorm;
+    });
+    if (ordenesQR.length > 0) {
+      // Si el QR escaneado no coincide exactamente, pero hay órdenes asociadas, usa el QR guardado en la orden más reciente
+      const qrReal = ordenesQR[0]?.dispositivo?.qr_scan || qrData;
+      setSearchQRCode(qrReal);
+      setScannedQrValue('');
+    } else {
+      // Si no hay órdenes, no mostrar nada ni alert ni formulario
+      setSearchQRCode(qrData);
+      setScannedQrValue(qrData);
+    }
+  };
+
+
   useEffect(() => {
     if (!ordenes) return;
     let ordenesFiltered = [...ordenes];
@@ -172,9 +202,11 @@ function TechnicianDashboard() {
       ordenesFiltered = ordenesFiltered.filter(orden => !orden.costo_acordado);
     }
     if (searchQRCode) {
-      ordenesFiltered = ordenesFiltered.filter(orden =>
-        orden.dispositivo.qr_scan.toLowerCase().includes(searchQRCode.toLowerCase())
-      );
+      const qrNorm = normalize(searchQRCode);
+      ordenesFiltered = ordenesFiltered.filter(orden => {
+        const qrOrden = normalize(orden.dispositivo?.qr_scan);
+        return qrOrden === qrNorm;
+      });
     }
     if (searchPhone) {
       const normalizedSearch = searchPhone.trim().toLowerCase();
@@ -312,6 +344,33 @@ function TechnicianDashboard() {
     } else if (filterStatus) {
       ordenesFiltered = ordenesFiltered.filter(orden => orden.estado === filterStatus);
     }
+    // FILTRO DE FECHA GLOBAL SI NO HAY ESTADO SELECCIONADO
+    if (dateFilterType && dateFilterValue) {
+      ordenesFiltered = ordenesFiltered.filter(orden => {
+        // Siempre filtrar por la fecha de solicitud (createdAt)
+        if (!orden.createdAt) return false;
+        const fecha = new Date(orden.createdAt);
+        if (dateFilterType === 'day') {
+          const [year, month, day] = dateFilterValue.split('-');
+          return (
+            fecha.getFullYear() === parseInt(year) &&
+            (fecha.getMonth() + 1) === parseInt(month) &&
+            fecha.getDate() === parseInt(day)
+          );
+        }
+        if (dateFilterType === 'month') {
+          const [year, month] = dateFilterValue.split('-');
+          return (
+            fecha.getFullYear() === parseInt(year) &&
+            (fecha.getMonth() + 1) === parseInt(month)
+          );
+        }
+        if (dateFilterType === 'year') {
+          return fecha.getFullYear() === parseInt(dateFilterValue);
+        }
+        return true;
+      });
+    }
     if (filterTipoServicio) {
       ordenesFiltered = ordenesFiltered.filter(orden => orden.tipoServicio === filterTipoServicio);
     }
@@ -320,26 +379,21 @@ function TechnicianDashboard() {
   const totalFiltered = filteredRequests.length;
   const currentTotalPages = Math.ceil(totalFiltered / limit);
   const requestsToDisplay = filteredRequests.slice((page - 1) * limit, page * limit);
-  const renderStatusBadge = (status, tipoOrden) => {
-    let badge = null;
+  const renderStatusBadge = (status) => {
     switch (status) {
       case 'pendiente':
-        badge = <span className="badge badge-warning">⏳ Pendiente</span>;
-        break;
+        return <span className="badge badge-warning">⏳ Pendiente</span>;
       case 'en_proceso':
-        badge = <span className="badge badge-info">🔧 Diagnosticado</span>;
-        break;
+        return <span className="badge badge-info">🔧 Diagnosticado</span>;
       case 'entregado':
-        badge = <span className="badge badge-dark">📦 Entregado</span>;
-        break;
+        return <span className="badge badge-dark">📦 Entregado</span>;
       case 'cancelado':
-        badge = <span className="badge badge-danger">🚫 En Abandono</span>;
-        break;
+        return <span className="badge badge-danger">🚫 En Abandono</span>;
+      case 'venta_rapida':
+        return <span className="badge badge-success" style={{background:'#4ade80',color:'#065f46'}}>⚡ Venta Rápida</span>;
       default:
-        badge = <span className="badge badge-secondary">{status}</span>;
+        return <span className="badge badge-secondary">{status}</span>;
     }
-    // Ya no mostramos el badge verde de VENTA, solo el texto estado/VENTA
-    return badge;
   };
   const handleRequestClick = (request) => {
     if (!showEliminados && request.costo_acordado) return;
@@ -367,7 +421,6 @@ function TechnicianDashboard() {
   const handleGoBack = () => {
     navigate('/');
   };
-
   useEffect(() => {
     // Si hay una orden seleccionada desde otra vista, abrir el modal automáticamente
     const selectedOrderId = sessionStorage.getItem('selectedOrderId');
@@ -380,15 +433,14 @@ function TechnicianDashboard() {
       }
     }
   }, [ordenes]);
-
-
   if (isLoadingAuth) return <div>Cargando...</div>;
   if (!currentUser) { window.location.href = '/login'; return null; }
   const filterOptions = [
     { value: "pendiente", label: "Pendiente" },
     { value: "en_proceso", label: "Diagnosticado" },
     { value: "entregado", label: "Entregado" },
-    { value: "cancelado", label: "En Abandono" }
+    { value: "cancelado", label: "En Abandono" },
+    { value: "venta_rapida", label: "Venta Rápida" }
   ];
   const tipoServicioOptions = [
     { value: "En Tienda H.", label: "En Tienda H." },
@@ -401,13 +453,11 @@ function TechnicianDashboard() {
   const currentUserLS = JSON.parse(localStorage.getItem('currentUser') || '{}');
 
   return (
-    <div className="employee-dashboard-container">
+    <div>
       {/* Navbar */}
       <div className="ed-navbar">
         <div className="ed-navbar-left">
-          <span className="ed-navbar-logo" style={{ color: '#ffab00', fontWeight: 'bold', fontSize: '1.3em', letterSpacing: 1 }}>
-            🛠️ PRINTEC LIMA
-          </span>
+          <span className="ed-navbar-logo">🛠️ PRINTEC Dashboard</span>
         </div>
         <div className="ed-navbar-center">
           <span className="ed-navbar-user">👨‍🔧 {technicianInfo.nombre.split(' ')[0]} {technicianInfo.apellido.split(' ')[0]}</span>
@@ -469,24 +519,65 @@ function TechnicianDashboard() {
             </div>
             {showDateFilter && (
               <div className="ed-date-filter">
-                <button className="ed-btn ed-btn-blue" onClick={() => { setDateFilterType('day'); setDateFilterValue(''); }}>Hoy</button>
+                <button
+                  className="ed-btn ed-btn-blue"
+                  onClick={() => {
+                    const now = new Date();
+                    const yyyy = now.getFullYear();
+                    const mm = String(now.getMonth() + 1).padStart(2, '0');
+                    const dd = String(now.getDate()).padStart(2, '0');
+                    setDateFilterType('day');
+                    setDateFilterValue(`${yyyy}-${mm}-${dd}`);
+                  }}
+                >
+                  Hoy
+                </button>
                 <input
                   type="date"
                   className="ed-input"
-                  onChange={e => { setDateFilterType('day'); setDateFilterValue(e.target.value); }}
+                  onChange={e => {
+                    setDateFilterType('day');
+                    setDateFilterValue(e.target.value);
+                  }}
                 />
-                <button className="ed-btn ed-btn-blue" onClick={() => { setDateFilterType('month'); setDateFilterValue(''); }}>Este Mes</button>
+                <button
+                  className="ed-btn ed-btn-blue"
+                  onClick={() => {
+                    const now = new Date();
+                    const yyyy = now.getFullYear();
+                    const mm = String(now.getMonth() + 1).padStart(2, '0');
+                    setDateFilterType('month');
+                    setDateFilterValue(`${yyyy}-${mm}`);
+                  }}
+                >
+                  Este Mes
+                </button>
                 <input
                   type="month"
                   className="ed-input"
-                  onChange={e => { setDateFilterType('month'); setDateFilterValue(e.target.value); }}
+                  onChange={e => {
+                    setDateFilterType('month');
+                    setDateFilterValue(e.target.value);
+                  }}
                 />
-                <button className="ed-btn ed-btn-blue" onClick={() => { setDateFilterType('year'); setDateFilterValue(''); }}>Este Año</button>
+                <button
+                  className="ed-btn ed-btn-blue"
+                  onClick={() => {
+                    const now = new Date();
+                    setDateFilterType('year');
+                    setDateFilterValue(`${now.getFullYear()}`);
+                  }}
+                >
+                  Este Año
+                </button>
                 <input
                   type="number"
                   className="ed-input"
                   placeholder="Año"
-                  onChange={e => { setDateFilterType('year'); setDateFilterValue(e.target.value); }}
+                  onChange={e => {
+                    setDateFilterType('year');
+                    setDateFilterValue(e.target.value);
+                  }}
                 />
               </div>
             )}
@@ -503,37 +594,45 @@ function TechnicianDashboard() {
               </thead>
               <tbody>
                 {requestsToDisplay.length > 0 ? (
-                  requestsToDisplay.map(orden => {
-                    // Estado con /VENTA si corresponde
-                    let estadoLabel = orden.estado;
-                    if (orden.tipo_orden === 'venta') {
-                      estadoLabel = `${orden.estado}/VENTA`;
-                    }
-                    return (
-                      <tr
-                        key={orden.id}
-                        className={`order-row${orden.costo_acordado ? ' ed-row-eliminado' : ''}`}
-                        onClick={() => handleRequestClick(orden)}
-                      >
-                        <td>
-                          <div className="ed-table-phone">
-                            <a href={`tel:${orden.dispositivo.cliente.telefono}`} className="ed-btn ed-btn-pink" onClick={e => e.stopPropagation()}>📞</a>
-                            <a href={`https://wa.me/+51${orden.dispositivo.cliente.telefono.replace(/\D/g, '')}`} target="_blank" rel="noopener noreferrer" className="ed-btn ed-btn-green" onClick={e => e.stopPropagation()}>💬</a>
-                            <span className="ed-table-phone-number">{orden.dispositivo.cliente.telefono || 'N/A'}</span>
-                          </div>
-                        </td>
-                        <td>
-                          {`${orden.dispositivo.cliente.nombre.split(' ')[0].toUpperCase()} ${orden.dispositivo.cliente.apellido.split(' ')[0].toUpperCase()}`.length > 20
-                            ? `${orden.dispositivo.cliente.nombre.split(' ')[0].toUpperCase()} ${orden.dispositivo.cliente.apellido.split(' ')[0].toUpperCase()}`.substring(0, 17) + '...'
-                            : `${orden.dispositivo.cliente.nombre.split(' ')[0].toUpperCase()} ${orden.dispositivo.cliente.apellido.split(' ')[0].toUpperCase()}`}
-                        </td>
-                        <td>
-                          {renderStatusBadge(estadoLabel, orden.tipo_orden)}
-                          {orden.tipoServicio && <div className="ed-tipo-servicio">• {orden.tipoServicio}</div>}
-                        </td>
-                      </tr>
-                    );
-                  })
+                  requestsToDisplay.map(orden => (
+                    <tr
+                      key={orden.id}
+                      className={`order-row${orden.costo_acordado ? ' ed-row-eliminado' : ''}`}
+                      onClick={() => handleRequestClick(orden)}
+                    >
+                      <td>
+                        <div className="ed-table-phone">
+                          <a href={`tel:${orden.dispositivo.cliente.telefono}`} className="ed-btn ed-btn-pink" onClick={e => e.stopPropagation()}>📞</a>
+                          <a href={`https://wa.me/+51${orden.dispositivo.cliente.telefono.replace(/\D/g, '')}`} target="_blank" rel="noopener noreferrer" className="ed-btn ed-btn-green" onClick={e => e.stopPropagation()}>💬</a>
+                          <span className="ed-table-phone-number">{orden.dispositivo.cliente.telefono || 'N/A'}</span>
+                        </div>
+                      </td>
+                      <td>
+                        <div style={{display: 'flex', flexDirection: isMobile ? 'column' : 'row', alignItems: isMobile ? 'flex-start' : 'center', gap: isMobile ? 2 : 8}}>
+                          <span style={{fontWeight: 600}}>
+                            {`${orden.dispositivo.cliente.nombre.split(' ')[0].toUpperCase()} ${orden.dispositivo.cliente.apellido.split(' ')[0].toUpperCase()}`.length > 20
+                              ? `${orden.dispositivo.cliente.nombre.split(' ')[0].toUpperCase()} ${orden.dispositivo.cliente.apellido.split(' ')[0].toUpperCase()}`.substring(0, 17) + '...'
+                              : `${orden.dispositivo.cliente.nombre.split(' ')[0].toUpperCase()} ${orden.dispositivo.cliente.apellido.split(' ')[0].toUpperCase()}`}
+                          </span>
+                          {/* Fecha de la orden */}
+                          <span style={{
+                            fontSize: isMobile ? '12px' : '13px',
+                            color: '#888',
+                            marginLeft: isMobile ? 0 : 8,
+                            marginTop: isMobile ? 2 : 0,
+                            fontWeight: 400
+                          }}>
+                            {(() => {
+                              // Mostrar SIEMPRE la fecha de solicitud (createdAt) en la tabla principal
+                              if (!orden.createdAt) return null;
+                              return new Date(orden.createdAt).toLocaleString('es-PE');
+                            })()}
+                          </span>
+                        </div>
+                      </td>
+                      <td>{renderStatusBadge(orden.estado)}{orden.tipoServicio && <div className="ed-tipo-servicio">• {orden.tipoServicio}</div>}</td>
+                    </tr>
+                  ))
                 ) : (
                   <tr>
                     <td colSpan="3" className="text-center">No se encontraron solicitudes que coincidan con la búsqueda</td>
@@ -564,6 +663,7 @@ function TechnicianDashboard() {
           initialMode={qrScanMode}
           hideOptions={qrScanMode === 'camera-only'}
         />
+
         {showUpdateMsg && (
           <NovedadesToast
             show={showUpdateMsg}
@@ -574,10 +674,11 @@ function TechnicianDashboard() {
           />
         )}
       </div>
-      {/* Chat IA flotante para empleados */}
-      <PrintecGPTChat />
+      <div style={{ position: 'fixed', bottom: 16, left: 16, zIndex: 9999 }}>
+        <GastoFloatingWidget />
+      </div>
     </div>
   );
 }
 
-export default TechnicianDashboard;
+export default EmployeeDashboard;
