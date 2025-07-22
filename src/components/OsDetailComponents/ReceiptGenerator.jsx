@@ -289,7 +289,7 @@ const ReceiptGenerator = ({ orderData, onSuccess, onError, onAfterSuccess }) => 
         try {
           setMessage({ show: true, text: 'Subiendo recibo al servidor...', type: 'info' });
           const response = await fetch(
-            `https://servidorserviciotecnico-production.up.railway.app/api/dispositivos/${dispositivoId}/recibo`, 
+            `https://servidorserviciotecnicolima-production.up.railway.app/api/dispositivos/${dispositivoId}/recibo`,
             {
               method: 'PUT',
               body: formData
