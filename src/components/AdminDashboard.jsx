@@ -1,3 +1,4 @@
+import GastosAdminPanel from './AdminDashboard/GastosAdminPanel';
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
@@ -454,7 +455,7 @@ const AdminDashboardContent = () => {
   // Obtener pagos desde el backend
   const fetchPagos = async () => {
     try {
-      const response = await fetch('https://servidorserviciotecnicolima-production.up.railway.app/api/pagos?page=1&limit=10000');
+      const response = await fetch('https://servidorserviciotecnico-production.up.railway.app/api/pagos?page=1&limit=10000');
       if (response.ok) {
         const data = await response.json();
         if (data && data.pagos) {
@@ -469,7 +470,7 @@ const AdminDashboardContent = () => {
     }
   };
 
-  const [activeModule, setActiveModule] = useState('caja'); // 'caja', 'tecnicos', 'exportar', 'estadisticas'
+  const [activeModule, setActiveModule] = useState('tecnicos'); // 'caja', 'tecnicos', 'exportar', 'estadisticas'
 
   // Cierra sidebar al cambiar módulo en móvil
   useEffect(() => {
@@ -516,6 +517,7 @@ const AdminDashboardContent = () => {
           >
             Configuración
           </button>
+          {/* Botón de Flujo de Caja oculto por requerimiento
           <button
             className={activeModule === 'caja' ? 'active' : ''}
             onClick={() => setActiveModule('caja')}
@@ -523,6 +525,7 @@ const AdminDashboardContent = () => {
           >
             Flujo de Caja
           </button>
+          */}
           <button
             className={activeModule === 'exportar' ? 'active' : ''}
             onClick={() => setActiveModule('exportar')}
@@ -541,12 +544,12 @@ const AdminDashboardContent = () => {
             Estadísticas
           </button>
           <button
-            className={activeModule === 'panel' ? 'active' : ''}
-            onClick={() => navigate('/employee-dashboard')}
-            aria-label="Menú Principal"
+            className={activeModule === 'gastos' ? 'active' : ''}
+            onClick={() => setActiveModule('gastos')}
+            aria-label="Ver Gastos"
+            style={{ fontWeight: 700 }}
           >
-            Menú Principal
-          </button>
+            Ver Gastos
           {(currentUser.rol === 'superAdmin' || (currentUser.rol === 'administrador' && (String(currentUser.id) === '14' || String(currentUser.id) === '22'))) && (
             <button
               onClick={() => window.open('https://webserviciotecnico-production.up.railway.app/employee-dashboard', '_blank')}
@@ -556,8 +559,26 @@ const AdminDashboardContent = () => {
               Sucursal Ica
             </button>
           )}
+          </button>
+          <button
+            className={activeModule === 'panel' ? 'active' : ''}
+            onClick={() => navigate('/employee-dashboard')}
+            aria-label="Menú Principal"
+          >
+            Menú Principal
+          </button>
+          {(currentUser.rol === 'superAdmin' || (currentUser.rol === 'administrador' && (String(currentUser.id) === '14' || String(currentUser.id) === '22'))) && (
+            <button
+              onClick={() => window.open('https://wesserviciotecnicolima-production.up.railway.app/employee-dashboard', '_blank')}
+              aria-label="Sucursal Ica"
+              style={{ background: '#f59e42', color: '#fff', border: '2px solid #f59e42', borderRadius: 12, fontWeight: 700, marginTop: 8, marginBottom: 8 }}
+            >
+              Sucursal Lima
+            </button>
+          )}
         </aside>
     <main className="main">
+      {activeModule === 'gastos' && <GastosAdminPanel />}
       {/* Formulario de técnicos mejorado */}
       {activeModule === 'tecnicos' && (
         <section className="form-tecnico" style={{ background: 'linear-gradient(135deg, #b2f0ff 0%, #e0c3fc 100%)', borderRadius: '22px', boxShadow: '0 4px 32px #a770ef22', padding: '2.5rem 2rem', marginBottom: '2rem' }}>
@@ -605,9 +626,10 @@ const AdminDashboardContent = () => {
           </div>
         </section>
       )}
-      {activeModule === 'caja' && (
+      {/* Oculto la sección de Flujo de Caja por requerimiento */}
+      {/* {activeModule === 'caja' && (
               <CierreCajaSection />
-            )}
+      )} */}
             {activeModule === 'exportar' && (
               <div className="box has-text-centered" style={{maxWidth: 500, margin: '2rem auto'}}>
                 <h2 className="title is-5 mb-4">Exportar Contactos</h2>

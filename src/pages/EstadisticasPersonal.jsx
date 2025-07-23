@@ -24,6 +24,8 @@ function EstadisticasPersonal() {
   
   const [modalOpen, setModalOpen] = useState(false);
   const [modalContent, setModalContent] = useState({ title: '', text: '' });
+  // Estado para mostrar/ocultar historial de caja
+  const [showCaja, setShowCaja] = useState(false);
   
   // Detectar si es móvil
   const isMobile = window.innerWidth < 768;
@@ -247,6 +249,18 @@ function EstadisticasPersonal() {
                     <span className="tag is-light has-text-primary has-text-weight-bold px-3 py-2" style={{ borderRadius: 10, fontSize: 15, background: '#23263A', color: '#A5B4FC', border: '1.5px solid #6366f1' }}>
                       ID: {technicianData.id}
                     </span>
+                    {/* Botón solo si hay datos de técnico */}
+                    {technicianData && (
+                      <div className="mt-3">
+                        <button
+                          className="button is-info"
+                          style={{ borderRadius: 12, fontWeight: 700, background: '#23263A', color: '#A5B4FC', border: '2px solid #6366f1' }}
+                          onClick={() => setShowCaja(prev => !prev)}
+                        >
+                          {showCaja ? 'Ocultar Caja' : 'Caja'}
+                        </button>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
@@ -266,122 +280,125 @@ function EstadisticasPersonal() {
           </div>
         </div>
 
-        <div className="columns is-multiline mb-4 is-flex is-justify-content-center mx-0 mx-3">
-          <div className="column is-12-mobile is-10-tablet px-0 px-3-tablet">
-            <div className="card has-shadow" style={{ borderRadius: '14px', boxShadow: '0 2px 8px #2563eb33', background: '#23263A' }}>
-              <header className="card-header has-background-primary has-text-white py-3" style={{ borderRadius: '14px 14px 0 0', background: 'linear-gradient(90deg, #23263A 0%, #181A20 100%)' }}>
-                <p className="card-header-title has-text-white is-flex is-align-items-center is-justify-content-center" style={{ fontSize: 20, fontWeight: 700, color: '#F3F4F6' }}>
-                  💰 Total de Pagos por Reparación
-                </p>
-              </header>
-              <div className="card-content p-2 p-4-tablet">
-                <div className="has-text-centered mb-4 p-3" style={{ borderRadius: '8px', background: '#181A20' }}>
-                  {!isMobile && (
-                    <h2 className="title is-2 has-text-success has-text-weight-bold" style={{ fontSize: 32, color: '#6EE7B7' }}>
-                      ${technicianData.stats.ingresosTotales ? technicianData.stats.ingresosTotales.toFixed(2) : '0.00'}
-                    </h2>
-                  )}
-                </div>
-                <div className="table-container" style={{ overflowX: 'auto' }}>
-                  {/* Modal para mostrar texto completo */}
-                  {modalOpen && (
-                    <div style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', background: 'rgba(24,26,32,0.85)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                      <div style={{ background: '#23263A', color: '#F3F4F6', borderRadius: 16, maxWidth: 400, width: '90vw', padding: 24, boxShadow: '0 8px 32px #0008', position: 'relative' }}>
-                        <button onClick={closeModal} style={{ position: 'absolute', top: 12, right: 16, background: 'none', border: 'none', color: '#A1A1AA', fontSize: 22, cursor: 'pointer' }}>✖</button>
-                        <h3 style={{ fontSize: 18, fontWeight: 700, marginBottom: 12 }}>{modalContent.title}</h3>
-                        <div style={{ whiteSpace: 'pre-line', fontSize: 16 }}>{modalContent.text}</div>
+        {/* Historial de caja solo si showCaja está activo */}
+        {showCaja && (
+          <div className="columns is-multiline mb-4 is-flex is-justify-content-center mx-0 mx-3">
+            <div className="column is-12-mobile is-10-tablet px-0 px-3-tablet">
+              <div className="card has-shadow" style={{ borderRadius: '14px', boxShadow: '0 2px 8px #2563eb33', background: '#23263A' }}>
+                <header className="card-header has-background-primary has-text-white py-3" style={{ borderRadius: '14px 14px 0 0', background: 'linear-gradient(90deg, #23263A 0%, #181A20 100%)' }}>
+                  <p className="card-header-title has-text-white is-flex is-align-items-center is-justify-content-center" style={{ fontSize: 20, fontWeight: 700, color: '#F3F4F6' }}>
+                    💰 Historial de Caja
+                  </p>
+                </header>
+                <div className="card-content p-2 p-4-tablet">
+                  <div className="has-text-centered mb-4 p-3" style={{ borderRadius: '8px', background: '#181A20' }}>
+                    {!isMobile && (
+                      <h2 className="title is-2 has-text-success has-text-weight-bold" style={{ fontSize: 32, color: '#6EE7B7' }}>
+                        ${technicianData.stats.ingresosTotales ? technicianData.stats.ingresosTotales.toFixed(2) : '0.00'}
+                      </h2>
+                    )}
+                  </div>
+                  <div className="table-container" style={{ overflowX: 'auto' }}>
+                    {/* Modal para mostrar texto completo */}
+                    {modalOpen && (
+                      <div style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', background: 'rgba(24,26,32,0.85)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <div style={{ background: '#23263A', color: '#F3F4F6', borderRadius: 16, maxWidth: 400, width: '90vw', padding: 24, boxShadow: '0 8px 32px #0008', position: 'relative' }}>
+                          <button onClick={closeModal} style={{ position: 'absolute', top: 12, right: 16, background: 'none', border: 'none', color: '#A1A1AA', fontSize: 22, cursor: 'pointer' }}>✖</button>
+                          <h3 style={{ fontSize: 18, fontWeight: 700, marginBottom: 12 }}>{modalContent.title}</h3>
+                          <div style={{ whiteSpace: 'pre-line', fontSize: 16 }}>{modalContent.text}</div>
+                        </div>
                       </div>
+                    )}
+                    <table className="table is-fullwidth is-hoverable is-striped" style={{ fontSize: 15, borderRadius: 8, background: '#181A20', color: '#F3F4F6' }}>
+                      <thead style={{ background: '#23263A' }}>
+                        <tr>
+                          <th style={{ color: '#F3F4F6', background: '#23263A', border: 'none' }}>Problema</th>
+                          <th style={{ color: '#F3F4F6', background: '#23263A', border: 'none' }}>Diagnóstico</th>
+                          <th className="has-text-right" style={{ color: '#F3F4F6', background: '#23263A', border: 'none' }}>Costo</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {technicianData.stats.detallesReparaciones && technicianData.stats.detallesReparaciones.length > 0 ? (
+                          technicianData.stats.detallesReparaciones
+                            .slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
+                            .map((detalle, index) => (
+                              <tr key={index} style={{ background: index % 2 === 0 ? '#23263A' : '#181A20' }}>
+                                <td className="has-text-weight-bold has-text-grey" style={{ fontWeight: 600, color: '#F3F4F6', maxWidth: 180 }}>
+                                  {detalle.problema && detalle.problema.length > 80 ? (
+                                    <>
+                                      {detalle.problema.slice(0, 80)}...{' '}
+                                      <button onClick={() => openModal('Problema', detalle.problema)} style={{ color: '#60a5fa', background: 'none', border: 'none', cursor: 'pointer', fontSize: 14, padding: 0 }}>Ver más</button>
+                                    </>
+                                  ) : (
+                                    detalle.problema
+                                  )}
+                                </td>
+                                <td style={{ color: '#F3F4F6', maxWidth: 180 }}>
+                                  {detalle.diagnostico && detalle.diagnostico.length > 80 ? (
+                                    <>
+                                      {detalle.diagnostico.slice(0, 80)}...{' '}
+                                      <button onClick={() => openModal('Diagnóstico', detalle.diagnostico)} style={{ color: '#60a5fa', background: 'none', border: 'none', cursor: 'pointer', fontSize: 14, padding: 0 }}>Ver más</button>
+                                    </>
+                                  ) : (
+                                    detalle.diagnostico
+                                  )}
+                                </td>
+                                <td className="has-text-right has-text-weight-bold has-text-success" style={{ color: '#6EE7B7' }}>${detalle.costo}</td>
+                              </tr>
+                            ))
+                        ) : (
+                          <tr>
+                            <td colSpan="3" className="has-text-centered py-4" style={{ color: '#A1A1AA' }}>
+                              <div className="is-flex is-flex-direction-column is-align-items-center">
+                                📋
+                                <span>No hay reparaciones registradas</span>
+                              </div>
+                            </td>
+                          </tr>
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
+                  {technicianData.stats.detallesReparaciones && technicianData.stats.detallesReparaciones.length > itemsPerPage && (
+                    <div className="is-flex is-justify-content-center mt-4">
+                      <nav className="pagination" role="navigation" aria-label="pagination">
+                        <a 
+                          className={`pagination-previous ${currentPage === 1 ? 'is-disabled' : ''}`}
+                          onClick={() => currentPage > 1 && setCurrentPage(prev => Math.max(prev - 1, 1))}
+                          style={{ background: '#23263A', color: '#A5B4FC', border: '1.5px solid #6366f1', borderRadius: 8 }}
+                        >
+                          Anterior
+                        </a>
+                        <a 
+                          className={`pagination-next ${currentPage === Math.ceil(technicianData.stats.detallesReparaciones.length / itemsPerPage) ? 'is-disabled' : ''}`}
+                          onClick={() => currentPage < Math.ceil(technicianData.stats.detallesReparaciones.length / itemsPerPage) && setCurrentPage(prev => 
+                            Math.min(prev + 1, Math.ceil(technicianData.stats.detallesReparaciones.length / itemsPerPage))
+                          )}
+                          style={{ background: '#23263A', color: '#A5B4FC', border: '1.5px solid #6366f1', borderRadius: 8 }}
+                        >
+                          Siguiente
+                        </a>
+                        <ul className="pagination-list">
+                          {[...Array(Math.ceil(technicianData.stats.detallesReparaciones.length / itemsPerPage))].map((_, i) => (
+                            <li key={i + 1}>
+                              <a 
+                                className={`pagination-link ${i + 1 === currentPage ? 'is-current' : ''}`}
+                                onClick={() => setCurrentPage(i + 1)}
+                                style={{ background: i + 1 === currentPage ? '#6366f1' : '#23263A', color: '#F3F4F6', border: 'none', borderRadius: 8 }}
+                              >
+                                {i + 1}
+                              </a>
+                            </li>
+                          ))}
+                        </ul>
+                      </nav>
                     </div>
                   )}
-                  <table className="table is-fullwidth is-hoverable is-striped" style={{ fontSize: 15, borderRadius: 8, background: '#181A20', color: '#F3F4F6' }}>
-                    <thead style={{ background: '#23263A' }}>
-                      <tr>
-                        <th style={{ color: '#F3F4F6', background: '#23263A', border: 'none' }}>Problema</th>
-                        <th style={{ color: '#F3F4F6', background: '#23263A', border: 'none' }}>Diagnóstico</th>
-                        <th className="has-text-right" style={{ color: '#F3F4F6', background: '#23263A', border: 'none' }}>Costo</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {technicianData.stats.detallesReparaciones && technicianData.stats.detallesReparaciones.length > 0 ? (
-                        technicianData.stats.detallesReparaciones
-                          .slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
-                          .map((detalle, index) => (
-                            <tr key={index} style={{ background: index % 2 === 0 ? '#23263A' : '#181A20' }}>
-                              <td className="has-text-weight-bold has-text-grey" style={{ fontWeight: 600, color: '#F3F4F6', maxWidth: 180 }}>
-                                {detalle.problema && detalle.problema.length > 80 ? (
-                                  <>
-                                    {detalle.problema.slice(0, 80)}...{' '}
-                                    <button onClick={() => openModal('Problema', detalle.problema)} style={{ color: '#60a5fa', background: 'none', border: 'none', cursor: 'pointer', fontSize: 14, padding: 0 }}>Ver más</button>
-                                  </>
-                                ) : (
-                                  detalle.problema
-                                )}
-                              </td>
-                              <td style={{ color: '#F3F4F6', maxWidth: 180 }}>
-                                {detalle.diagnostico && detalle.diagnostico.length > 80 ? (
-                                  <>
-                                    {detalle.diagnostico.slice(0, 80)}...{' '}
-                                    <button onClick={() => openModal('Diagnóstico', detalle.diagnostico)} style={{ color: '#60a5fa', background: 'none', border: 'none', cursor: 'pointer', fontSize: 14, padding: 0 }}>Ver más</button>
-                                  </>
-                                ) : (
-                                  detalle.diagnostico
-                                )}
-                              </td>
-                              <td className="has-text-right has-text-weight-bold has-text-success" style={{ color: '#6EE7B7' }}>${detalle.costo}</td>
-                            </tr>
-                          ))
-                      ) : (
-                        <tr>
-                          <td colSpan="3" className="has-text-centered py-4" style={{ color: '#A1A1AA' }}>
-                            <div className="is-flex is-flex-direction-column is-align-items-center">
-                              📋
-                              <span>No hay reparaciones registradas</span>
-                            </div>
-                          </td>
-                        </tr>
-                      )}
-                    </tbody>
-                  </table>
                 </div>
-                {technicianData.stats.detallesReparaciones && technicianData.stats.detallesReparaciones.length > itemsPerPage && (
-                  <div className="is-flex is-justify-content-center mt-4">
-                    <nav className="pagination" role="navigation" aria-label="pagination">
-                      <a 
-                        className={`pagination-previous ${currentPage === 1 ? 'is-disabled' : ''}`}
-                        onClick={() => currentPage > 1 && setCurrentPage(prev => Math.max(prev - 1, 1))}
-                        style={{ background: '#23263A', color: '#A5B4FC', border: '1.5px solid #6366f1', borderRadius: 8 }}
-                      >
-                        Anterior
-                      </a>
-                      <a 
-                        className={`pagination-next ${currentPage === Math.ceil(technicianData.stats.detallesReparaciones.length / itemsPerPage) ? 'is-disabled' : ''}`}
-                        onClick={() => currentPage < Math.ceil(technicianData.stats.detallesReparaciones.length / itemsPerPage) && setCurrentPage(prev => 
-                          Math.min(prev + 1, Math.ceil(technicianData.stats.detallesReparaciones.length / itemsPerPage))
-                        )}
-                        style={{ background: '#23263A', color: '#A5B4FC', border: '1.5px solid #6366f1', borderRadius: 8 }}
-                      >
-                        Siguiente
-                      </a>
-                      <ul className="pagination-list">
-                        {[...Array(Math.ceil(technicianData.stats.detallesReparaciones.length / itemsPerPage))].map((_, i) => (
-                          <li key={i + 1}>
-                            <a 
-                              className={`pagination-link ${i + 1 === currentPage ? 'is-current' : ''}`}
-                              onClick={() => setCurrentPage(i + 1)}
-                              style={{ background: i + 1 === currentPage ? '#6366f1' : '#23263A', color: '#F3F4F6', border: 'none', borderRadius: 8 }}
-                            >
-                              {i + 1}
-                            </a>
-                          </li>
-                        ))}
-                      </ul>
-                    </nav>
-                  </div>
-                )}
               </div>
             </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );

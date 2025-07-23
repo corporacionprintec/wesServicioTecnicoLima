@@ -6,7 +6,7 @@ const CierreCajaSection = () => {
   const [cierres, setCierres] = useState([]);
   const [pagosNoCuadrados, setPagosNoCuadrados] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [montoCierre, setMontoCierre] = useState('');
+  // Eliminados los estados de efectivo y debito manuales
   const [mensaje, setMensaje] = useState('');
 
   // Estado para mostrar/ocultar historial y paginación
@@ -90,9 +90,13 @@ const CierreCajaSection = () => {
         } catch (e) {}
       }
       console.log('ID encontrado para cierre de caja:', tecnico_id);
-      // Asegurar que monto_cierre sea un número
-      const montoCierreNumber = Number(montoCierre);
-      const bodyToSend = { monto_cierre: montoCierreNumber, tecnico_id };
+      // Usar solo el total calculado por el sistema
+      const bodyToSend = {
+        tecnico_id,
+        monto_cierre: Number(totalGeneral),
+        monto_efectivo: Number(totalEfectivo),
+        monto_debito: Number(totalElectronico)
+      };
       console.log('Body enviado al backend:', bodyToSend);
       const response = await fetch('https://servidorserviciotecnicolima-production.up.railway.app/api/cierres-caja', {
         method: 'POST',
@@ -102,10 +106,7 @@ const CierreCajaSection = () => {
       const data = await response.json();      
       if (response.ok) {
         setMensaje('Cierre de caja realizado correctamente.');
-        // Recargar todos los datos
         cargarDatos();
-        // Limpiar el formulario
-        setMontoCierre('');
       } else {
         setMensaje(data.message || 'Error al realizar el cierre de caja.');
       }
@@ -194,6 +195,44 @@ const CierreCajaSection = () => {
     setTouchStartX(null);
   };
 
+  // Nuevo: estado para el detalle
+  const [detalleCierre, setDetalleCierre] = useState(null); 
+  const [pagosCierre, setPagosCierre] = useState([]); // Nuevo: pagos del cierre seleccionado
+  const [loadingDetalle, setLoadingDetalle] = useState(false);
+  // Estado para el modal de detalle de cierre
+  const [modalDetalleVisible, setModalDetalleVisible] = useState(false);
+
+  // Nuevo: función para cargar el detalle de un cierre
+  const verDetalleCierre = async (cierreId) => {
+    setLoadingDetalle(true);
+    setDetalleCierre(null);
+    setPagosCierre([]);
+    setModalDetalleVisible(true); // Mostrar modal
+    try {
+      const res = await fetch(`https://servidorserviciotecnicolima-production.up.railway.app/api/cierres-caja/${cierreId}`);
+      const data = await res.json();
+      if (data.status === 'success' && data.data) {
+        setDetalleCierre(data.data);
+        setPagosCierre(data.data.Pagos || data.data.pagos || []);
+      } else {
+        setDetalleCierre({ error: 'No se pudo cargar el detalle.' });
+      }
+    } catch (e) {
+      setDetalleCierre({ error: 'Error de conexión.' });
+    } finally {
+      setLoadingDetalle(false);
+    }
+  };
+
+  // Estado para paginación de pagos incluidos en el cierre
+  const [paginaPagos, setPaginaPagos] = useState(1);
+  const pagosPorPagina = 3;
+  const totalPaginasPagos = Math.ceil(pagosCierre.length / pagosPorPagina);
+  const pagosCierrePaginados = pagosCierre.slice((paginaPagos - 1) * pagosPorPagina, paginaPagos * pagosPorPagina);
+
+  // El monto total de cierre es el total general del sistema
+  const montoCierreTotal = totalGeneral;
+
   return (
     <div className="box" style={{ margin: '2em auto', maxWidth: 900, background: '#ffffff', border: '1.5px solid #b6d0f7', borderRadius: 16, color: '#1a3557', boxShadow: '0 2px 8px rgba(91,134,229,0.09)' }}>
       <h2 className="title is-4" style={{ color: '#1a3557', fontWeight: 800 }}>Cierre de Caja</h2>
@@ -265,7 +304,7 @@ const CierreCajaSection = () => {
         </div>
       </div>
 
-      {/* Formulario de cierre */}
+      {/* Formulario de cierre solo con el total */}
       <form onSubmit={handleCierreCaja} className="mb-4">
         <div className="field">
           <label className="label" style={{ color: '#1a3557', fontWeight: 600 }}>Monto total a cuadrar</label>
@@ -273,37 +312,22 @@ const CierreCajaSection = () => {
             <input
               className="input"
               type="number"
-              min="0"
-              step="0.01"
-              value={montoCierre}
-              onChange={e => setMontoCierre(e.target.value)}
-              required
-              style={{ 
-                background: '#fff', 
-                color: '#1a3557', 
-                border: '1.5px solid #b6d0f7', 
-                fontWeight: 700,
-                fontSize: '1.1rem'
-              }}
+              value={montoCierreTotal}
+              readOnly
+              style={{ background: '#f0f9ff', color: '#1a3557', border: '1.5px solid #b6d0f7', fontWeight: 700, fontSize: '1.1rem' }}
             />
           </div>
         </div>
-        <button 
-          className="button is-link" 
-          type="submit" 
-          disabled={loading} 
-          style={{ 
-            fontWeight: 700, 
-            background: '#2563eb', 
-            color: '#fff', 
-            border: 'none', 
-            boxShadow: '0 2px 8px rgba(37,99,235,0.2)',
-            fontSize: '1rem'
-          }}
+        <button
+          className="button is-link"
+          type="submit"
+          disabled={loading}
+          style={{ fontWeight: 700, background: '#2563eb', color: '#fff', border: 'none', boxShadow: '0 2px 8px rgba(37,99,235,0.2)', fontSize: '1rem' }}
         >
           {loading ? 'Procesando...' : 'Realizar cierre de caja'}
         </button>
       </form>
+
 
       {mensaje && (
         <div className="notification" style={{ 
@@ -315,6 +339,170 @@ const CierreCajaSection = () => {
           {mensaje}
         </div>
       )}
+
+      {/* Historial de cierres (ahora oculto por defecto y paginado) */}
+      <div style={{ marginTop: 24 }}>
+        <button
+          className="button is-info"
+          style={{ fontWeight: 700, background: '#1e40af', color: '#fff', border: 'none', marginBottom: 12 }}
+          onClick={() => setMostrarHistorial(!mostrarHistorial)}
+        >
+          {mostrarHistorial ? 'Ocultar historial de cierres' : 'Ver historial de cierres'}
+        </button>
+
+        {mostrarHistorial && (
+          cierres.length === 0 ? (
+            <div style={{ color: '#4b5563', fontSize: '1rem' }}>No hay cierres registrados.</div>
+          ) : (
+            <>
+              {/* Tabla con scroll lateral real y sin restricciones de ancho */}
+              <div style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch', maxWidth: '100vw' }}>
+                <table className="table is-bordered is-narrow" style={{ background: '#fff', minWidth: 700 }}>
+                  <thead style={{ background: '#1a3557' }}>
+                    <tr>
+                      <th style={{ color: '#fff', fontWeight: 700, whiteSpace: 'nowrap', padding: '6px 12px', fontSize: '0.98rem' }}>Monto</th>
+                      <th style={{ color: '#fff', fontWeight: 700, whiteSpace: 'nowrap', padding: '6px 12px', fontSize: '0.98rem' }}>Efectivo</th>
+                      <th style={{ color: '#fff', fontWeight: 700, whiteSpace: 'nowrap', padding: '6px 12px', fontSize: '0.98rem' }}>Débito/Electrónico</th>
+                      <th style={{ color: '#fff', fontWeight: 700, whiteSpace: 'nowrap', padding: '6px 12px', fontSize: '0.98rem' }}>Fecha</th>
+                      <th style={{ color: '#fff', fontWeight: 700, whiteSpace: 'nowrap', padding: '6px 12px', fontSize: '0.98rem' }}>Detalle</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {cierresPaginados.map((cierre, idx) => (
+                      <tr key={cierre.id || idx}>
+                        <td style={{ color: '#1a3557', fontWeight: 700, fontSize: '1rem', padding: '6px 12px', whiteSpace: 'nowrap' }}>S/. {parseFloat(cierre.monto_total || 0).toFixed(2)}</td>
+                        <td style={{ color: '#065f46', fontWeight: 700, fontSize: '1rem', padding: '6px 12px', whiteSpace: 'nowrap' }}>S/. {parseFloat(cierre.total_efectivo || 0).toFixed(2)}</td>
+                        <td style={{ color: '#1e40af', fontWeight: 700, fontSize: '1rem', padding: '6px 12px', whiteSpace: 'nowrap' }}>S/. {parseFloat(cierre.total_debito || 0).toFixed(2)}</td>
+                        <td style={{ color: '#1a3557', fontSize: '0.97rem', padding: '6px 12px', whiteSpace: 'nowrap' }}>{cierre.createdAt ? new Date(cierre.createdAt).toLocaleString('es-PE') : ''}</td>
+                        <td style={{ padding: '6px 12px' }}>
+                          <button className="button is-small is-link" onClick={() => verDetalleCierre(cierre.id)}>
+                            Ver detalle
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              {/* Paginación */}
+              <nav className="pagination is-centered" role="navigation" aria-label="pagination">
+                <button
+                  className="pagination-previous button"
+                  onClick={() => setPaginaActual(p => Math.max(1, p - 1))}
+                  disabled={paginaActual === 1}
+                  style={{ marginRight: 8 }}
+                >Anterior</button>
+                <button
+                  className="pagination-next button"
+                  onClick={() => setPaginaActual(p => Math.min(totalPaginas, p + 1))}
+                  disabled={paginaActual === totalPaginas}
+                >Siguiente</button>
+                <ul className="pagination-list" style={{ display: 'inline-flex', marginLeft: 16 }}>
+                  {Array.from({ length: totalPaginas }, (_, i) => (
+                    <li key={i}>
+                      <button
+                        className={`pagination-link button${paginaActual === i + 1 ? ' is-current' : ''}`}
+                        onClick={() => setPaginaActual(i + 1)}
+                        style={{ margin: '0 2px', background: paginaActual === i + 1 ? '#1e40af' : '#fff', color: paginaActual === i + 1 ? '#fff' : '#1a3557', border: '1px solid #b6d0f7' }}
+                      >{i + 1}</button>
+                    </li>
+                  ))}
+                </ul>
+              </nav>
+              {/* Detalle de cierre seleccionado */}
+              {/* MODAL DETALLE CIERRE */}
+              {modalDetalleVisible && (
+                <div style={{
+                  position: 'fixed',
+                  top: 0,
+                  left: 0,
+                  width: '100vw',
+                  height: '100vh',
+                  background: 'rgba(0,0,0,0.35)',
+                  zIndex: 1000,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  padding: 0
+                }}>
+                  <div style={{
+                    background: '#fff',
+                    borderRadius: 14,
+                    maxWidth: 420,
+                    width: '95vw',
+                    maxHeight: '90vh',
+                    overflowY: 'auto',
+                    boxShadow: '0 4px 24px rgba(0,0,0,0.13)',
+                    padding: 18,
+                    position: 'relative',
+                    margin: '0 auto',
+                    color: '#1a3557',
+                  }}>
+                    <button
+                      onClick={() => setModalDetalleVisible(false)}
+                      style={{
+                        position: 'absolute',
+                        top: 10,
+                        right: 12,
+                        background: 'none',
+                        border: 'none',
+                        fontSize: 22,
+                        color: '#1a3557',
+                        cursor: 'pointer',
+                        fontWeight: 700
+                      }}
+                      aria-label="Cerrar"
+                    >×</button>
+                    <h4 style={{ color: '#1e40af', fontWeight: 700, marginBottom: 8, fontSize: '1.1rem', textAlign: 'center' }}>Detalle del cierre</h4>
+                    {loadingDetalle && <div style={{ color: '#1a3557', marginTop: 12 }}>Cargando detalle...</div>}
+                    {detalleCierre && (
+                      detalleCierre.error ? (
+                        <div style={{ color: 'red' }}>{detalleCierre.error}</div>
+                      ) : (
+                        <>
+                          <div><b>Monto total:</b> S/. {parseFloat(detalleCierre.monto_total).toFixed(2)}</div>
+                          <div><b>Efectivo:</b> S/. {parseFloat(detalleCierre.total_efectivo || 0).toFixed(2)}</div>
+                          <div><b>Débito/Electrónico:</b> S/. {parseFloat(detalleCierre.total_debito || 0).toFixed(2)}</div>
+                          <div><b>Fecha:</b> {detalleCierre.createdAt ? new Date(detalleCierre.createdAt).toLocaleString('es-PE') : ''}</div>
+                          <div><b>Técnico:</b> {detalleCierre.Tecnico ? `${detalleCierre.Tecnico.nombre} ${detalleCierre.Tecnico.apellido}` : 'N/A'}</div>
+                          <div style={{ marginTop: 10 }}>
+                            <b>Pagos incluidos en este cierre:</b>
+                            {pagosCierre.length === 0 ? (
+                              <div style={{ color: '#4b5563' }}>No hay pagos asociados a este cierre.</div>
+                            ) : (
+                              <table className="table is-fullwidth is-bordered is-narrow" style={{ background: '#f0f9ff', marginTop: 8 }}>
+                                <thead style={{ background: '#1e40af' }}>
+                                  <tr>
+                                    <th style={{ color: '#fff', fontWeight: 700 }}>Monto</th>
+                                    <th style={{ color: '#fff', fontWeight: 700 }}>Método</th>
+                                    <th style={{ color: '#fff', fontWeight: 700 }}>Fecha</th>
+                                    <th style={{ color: '#fff', fontWeight: 700 }}>Cliente</th>
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                  {pagosCierre.map((pago, i) => (
+                                    <tr key={pago.id || i}>
+                                      <td style={{ color: '#1a3557', fontWeight: 700 }}>S/. {parseFloat(pago.monto).toFixed(2)}</td>
+                                      <td style={{ color: '#1e40af' }}>{pago.metodo_pago}</td>
+                                      <td style={{ color: '#1a3557' }}>{pago.fecha_pago ? new Date(pago.fecha_pago).toLocaleString('es-PE') : ''}</td>
+                                      <td style={{ color: '#1a3557' }}>{pago.orden && pago.orden.dispositivo && pago.orden.dispositivo.cliente ? `${pago.orden.dispositivo.cliente.nombre} ${pago.orden.dispositivo.cliente.apellido}` : 'N/A'}</td>
+                                    </tr>
+                                  ))}
+                                </tbody>
+                              </table>
+                            )}
+                          </div>
+                        </>
+                      )
+                    )}
+                  </div>
+                </div>
+              )}
+              {/* Fin modal detalle */}
+            </>
+          )
+        )}
+      </div>
 
       {/* Sección de pagos no cuadrados */}
       <h3 className="title is-5" style={{ 
@@ -382,67 +570,6 @@ const CierreCajaSection = () => {
           ))}
         </>
       )}
-
-      {/* Historial de cierres (ahora oculto por defecto y paginado) */}
-      <div style={{ marginTop: 24 }}>
-        <button
-          className="button is-info"
-          style={{ fontWeight: 700, background: '#1e40af', color: '#fff', border: 'none', marginBottom: 12 }}
-          onClick={() => setMostrarHistorial(!mostrarHistorial)}
-        >
-          {mostrarHistorial ? 'Ocultar historial de cierres' : 'Ver historial de cierres'}
-        </button>
-
-        {mostrarHistorial && (
-          cierres.length === 0 ? (
-            <div style={{ color: '#4b5563', fontSize: '1rem' }}>No hay cierres registrados.</div>
-          ) : (
-            <>
-              <table className="table is-fullwidth is-bordered is-narrow" style={{ background: '#fff' }}>
-                <thead style={{ background: '#1a3557' }}>
-                  <tr>
-                    <th style={{ color: '#fff', fontWeight: 700 }}>Monto</th>
-                    <th style={{ color: '#fff', fontWeight: 700 }}>Fecha</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {cierresPaginados.map((cierre, idx) => (
-                    <tr key={cierre.id || idx}>
-                      <td style={{ color: '#1a3557' }}>S/. {parseFloat(cierre.monto_total).toFixed(2)}</td>
-                      <td style={{ color: '#1a3557' }}>{cierre.createdAt ? new Date(cierre.createdAt).toLocaleString('es-PE') : ''}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-              {/* Paginación */}
-              <nav className="pagination is-centered" role="navigation" aria-label="pagination">
-                <button
-                  className="pagination-previous button"
-                  onClick={() => setPaginaActual(p => Math.max(1, p - 1))}
-                  disabled={paginaActual === 1}
-                  style={{ marginRight: 8 }}
-                >Anterior</button>
-                <button
-                  className="pagination-next button"
-                  onClick={() => setPaginaActual(p => Math.min(totalPaginas, p + 1))}
-                  disabled={paginaActual === totalPaginas}
-                >Siguiente</button>
-                <ul className="pagination-list" style={{ display: 'inline-flex', marginLeft: 16 }}>
-                  {Array.from({ length: totalPaginas }, (_, i) => (
-                    <li key={i}>
-                      <button
-                        className={`pagination-link button${paginaActual === i + 1 ? ' is-current' : ''}`}
-                        onClick={() => setPaginaActual(i + 1)}
-                        style={{ margin: '0 2px', background: paginaActual === i + 1 ? '#1e40af' : '#fff', color: paginaActual === i + 1 ? '#fff' : '#1a3557', border: '1px solid #b6d0f7' }}
-                      >{i + 1}</button>
-                    </li>
-                  ))}
-                </ul>
-              </nav>
-            </>
-          )
-        )}
-      </div>
     </div>
   );
 };
